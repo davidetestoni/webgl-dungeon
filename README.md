@@ -1,8 +1,12 @@
 # CG_2019_Dungeon
 Computer graphics project - Dungeon
 
+# Setup
+1. Clone the repository
+2. Spawn a local HTTP server to avoid CORS errors
+3. Open localhost on the correct port inside your browser
 
-Usefull links:
+Useful links:
 
 //libreria per semplificare codice volendo
 -http://twgljs.org

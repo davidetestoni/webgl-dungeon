@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>First Person Dungeon Crawler</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body onload="Init();">
+	<canvas id="gl-surface">
+		Your browser does not support HTML5.
+    </canvas>
+    
+    <!-- Carica le librerie di terze parti -->
+	<script src="lib/dist/async.js"></script>
+	<script src="lib/dist/gl-matrix.js"></script>
+
+    <!-- Carica lo script principale -->
+    <script src="app.js"></script>
+
+    <!-- Carica la libreria di utility per caricare gli asset -->
+    <script src="lib/utils.js"></script>
+
+    <!-- Carica le classi -->
+    <script src="lib/Model.js"></script>
+    <script src="lib/Camera.js"></script>
+    
+    <!-- Carica le scene -->
+    <script src="scenes/DungeonScene.js"></script>
+    <script src="scenes/TestScene.js"></script>
+</body>
+</html>
