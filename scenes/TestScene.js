@@ -267,8 +267,7 @@ TestScene.prototype._Update = function (dt) {
 		this.camera.rotateRight(-dt / 1000 * this.RotateSpeed);
     }
     
-    // Muovi la telecamera tramite il mouse
-    /*
+    
     if (this.MousePosition.DX !== 0.0){
         this.camera.rotateRight(-dt / 1000 * this.RotateSpeed * this.MousePosition.DX);
         this.MousePosition.DX = 0.0;
@@ -278,7 +277,7 @@ TestScene.prototype._Update = function (dt) {
         this.camera.rotateUp(dt / 1000 * this.RotateSpeed * this.MousePosition.DY);
         this.MousePosition.DY = 0.0;
     }
-   
+   /*
     if (this.MousePosition.DX !== 0.0 || this.MousePosition.DY !== 0.0){
         this.camera.MoveByMouse(this.MousePosition.DX * this.RotateSpeed, -this.MousePosition.DY * this.RotateSpeed);
     } */
