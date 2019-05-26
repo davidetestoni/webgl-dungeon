@@ -99,11 +99,11 @@ TestScene.prototype.Load = function (cb) {
 			vNorm: me.gl.getAttribLocation(me.Program, 'vNorm'),
 		};
 
-		// Crea la telecamera in una posizione standard
+		// Crea la telecamera sull asse positivo delle Z che guarda l'origine
 		me.camera = new Camera(
-			vec3.fromValues(0, 0, 1.85),
-			vec3.fromValues(-0.3, -1, 1.85),
-			vec3.fromValues(0, 0, 1)
+			vec3.fromValues(0,  0,20), //Posizione iniziale della camera
+			0, // X
+			0  // Y
 		);
 
         me.viewMatrix = mat4.create();
@@ -112,7 +112,7 @@ TestScene.prototype.Load = function (cb) {
 		me.projMatrix = mat4.create();
 		mat4.perspective(
 			me.projMatrix,
-			glMatrix.toRadian(90),
+			glMatrix.toRadian(45), 
 			me.gl.canvas.clientWidth / me.gl.canvas.clientHeight,
 			0.35,
 			85.0
@@ -252,19 +252,19 @@ TestScene.prototype._Update = function (dt) {
 	}
 
 	if (this.PressedKeys.Up && !this.PressedKeys.Down) {
-		this.camera.moveUp(dt / 1000 * this.MoveForwardSpeed);
+		this.camera.rotateUp(dt / 1000 * this.MoveForwardSpeed);
 	}
 
 	if (this.PressedKeys.Down && !this.PressedKeys.Up) {
-		this.camera.moveUp(-dt / 1000 * this.MoveForwardSpeed);
+		this.camera.rotateUp(-dt / 1000 * this.MoveForwardSpeed);
 	}
 
 	if (this.PressedKeys.RotRight && !this.PressedKeys.RotLeft) {
-		this.camera.rotateRight(-dt / 1000 * this.RotateSpeed);
+		this.camera.rotateRight(dt / 1000 * this.RotateSpeed);
 	}
 
 	if (this.PressedKeys.RotLeft && !this.PressedKeys.RotRight) {
-		this.camera.rotateRight(dt / 1000 * this.RotateSpeed);
+		this.camera.rotateRight(-dt / 1000 * this.RotateSpeed);
     }
     
     // Muovi la telecamera tramite il mouse
@@ -278,11 +278,11 @@ TestScene.prototype._Update = function (dt) {
         this.camera.rotateUp(dt / 1000 * this.RotateSpeed * this.MousePosition.DY);
         this.MousePosition.DY = 0.0;
     }
-    */
-
+   
     if (this.MousePosition.DX !== 0.0 || this.MousePosition.DY !== 0.0){
         this.camera.MoveByMouse(this.MousePosition.DX * this.RotateSpeed, -this.MousePosition.DY * this.RotateSpeed);
-    }
+    } */
+
 
 	this.camera.GetViewMatrix(this.viewMatrix);
 };
