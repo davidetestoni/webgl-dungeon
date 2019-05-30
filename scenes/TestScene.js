@@ -20,7 +20,7 @@ TestScene.prototype.Load = function (cb) {
 	async.parallel({
 		Models: function (callback) {
 			async.map({
-				TestModel: 'assets/meshes/Room.json'
+				TestModel: 'assets/meshes/cube.json'
 			}, LoadJSONResource, callback);
 		},
 		ShaderCode: function (callback) {
@@ -101,9 +101,9 @@ TestScene.prototype.Load = function (cb) {
 
 		// Crea la telecamera sull asse positivo delle Z che guarda l'origine
 		me.camera = new Camera(
-			vec3.fromValues(0,  0,20), //Posizione iniziale della camera
-			0, // X
-			0  // Y
+			vec3.fromValues(0, 0, 20), //Posizione iniziale della camera
+			0, // alpha
+			0  // beta
 		);
 
         me.viewMatrix = mat4.create();
@@ -145,6 +145,10 @@ TestScene.prototype.Load = function (cb) {
     // Imposta la velocità di movimento (può incrementare con power-up)
 	me.MoveForwardSpeed = 3.5;
 	me.RotateSpeed = 1.5;
+
+	// Imposta la hitbox del personaggio
+	me.hitboxWidth = 3;
+	me.hitboxHeight = 6;
 };
 
 // Scarica la scena dalla memoria
@@ -234,20 +238,23 @@ Metodi privati
 // in base a quali tasti sono premuti quando viene disegnato il frame
 TestScene.prototype._Update = function (dt) {
 
+	// Ottieni quali direzioni collidono con l'ambiente (e saranno perciò proibite)
+	var collisions = this.GetCollisions();
+
     // Muovi la telecamera tramite i tasti
-	if (this.PressedKeys.Forward && !this.PressedKeys.Back) {
+	if (this.PressedKeys.Forward && !this.PressedKeys.Back && !collisions.includes('back')) {
 		this.camera.moveForward(dt / 1000 * this.MoveForwardSpeed);
 	}
 
-	if (this.PressedKeys.Back && !this.PressedKeys.Forward) {
+	if (this.PressedKeys.Back && !this.PressedKeys.Forward && !collisions.includes('forward')) {
 		this.camera.moveForward(-dt / 1000 * this.MoveForwardSpeed);
 	}
 
-	if (this.PressedKeys.Right && !this.PressedKeys.Left) {
+	if (this.PressedKeys.Right && !this.PressedKeys.Left && !collisions.includes('right')) {
 		this.camera.moveRight(dt / 1000 * this.MoveForwardSpeed);
 	}
 
-	if (this.PressedKeys.Left && !this.PressedKeys.Right) {
+	if (this.PressedKeys.Left && !this.PressedKeys.Right && !collisions.includes('left')) {
 		this.camera.moveRight(-dt / 1000 * this.MoveForwardSpeed);
 	}
 
@@ -282,9 +289,95 @@ TestScene.prototype._Update = function (dt) {
         this.camera.MoveByMouse(this.MousePosition.DX * this.RotateSpeed, -this.MousePosition.DY * this.RotateSpeed);
     } */
 
-
 	this.camera.GetViewMatrix(this.viewMatrix);
 };
+
+TestScene.prototype.GetCollisions = function () {
+
+	var pos = this.camera.position;
+	var fwd = [0, 0, this.hitboxWidth]; // Z positivo
+	var right = [0, 1, 0]; // Y positivo
+
+	// Creiamo il vettore che guarda davanti (ruotiamo un vettore lungo l'asse y di alpha attorno all'asse x)
+	vec3.rotateX(fwd, fwd, [0, 0, 0], this.camera.beta);
+
+	// Da questo poi creiamo il vettore ortogonale right = forward x up (asse x)
+	vec3.cross(right, fwd, right);
+
+	var collisions = [];
+	var epsilon = 0.1;
+	var point = [0, 0, 0];
+	var rand = Math.floor(Math.random() * 300);
+
+	for(var dir of ['left', 'right', 'forward', 'back']){
+		
+		// Per ora proviamo solo con forward
+		// if (dir !== 'forward') continue;
+
+		// Setta il punto nella direzione cercata, distante quanto la hitbox del personaggio
+		switch(dir){
+			case 'left':
+				point = [-right[0], -right[1], -right[2]];
+				break;
+			case 'right':
+				point = right;
+				break;
+			case 'forward':
+				point = fwd;
+				break;
+			case 'back':
+				point = [-fwd[0], -fwd[1], -fwd[2]];
+				break;
+		}
+
+		// Aggiungi lo scostamento alla posizione del personaggio
+		vec3.add(point, point, pos);
+	
+		// Per ogni mesh, e per ogni triangolo di quella mesh, controlla se collide
+		meshloop: for(var mesh of this.Meshes){
+			for (var tri of mesh.triangles){
+				// Calcola l'area del triangolo ABC usando i cross product
+				var areaTot = this.TriArea(tri);
+	
+				// Calcola le aree degli altri triangoli formati dal nostro point con altri 2 vertici (DBC + ADC + ABD)
+				var myArea = 
+					this.TriArea([point, tri[1], tri[2]]) +
+					this.TriArea([tri[0], point, tri[2]]) +
+					this.TriArea([tri[0], tri[1], point]);
+				
+				if (rand % 99 == 0){
+					// ATTENZIONE: Mai stampare questo ogni frame o impazzisce il pc
+					console.log('DIR: '+dir+' TRIANGLE: '+tri+' POINT: '+point+' TOT: '+areaTot+' MINE: '+myArea);
+				}
+				
+				// Se la differenza tra le due aree è minore di un epsilon, stiamo collidendo!
+				if (Math.abs(areaTot - myArea) < epsilon){
+					collisions.push(dir);
+					break meshloop;
+				}
+			}
+		}
+	
+		// Qui dovremmo anche checkare collisione up e down (in particolare se implementiamo i salti o i dislivelli nel dungeon).
+		
+	}
+
+	return collisions;
+};
+
+TestScene.prototype.TriArea = function(tri){
+	// Area = 0.5 * |(P1-P0)x(P2-P0)|
+	var vec = [];
+	var p1p0 = [];
+	var p2p0 = [];
+	vec3.subtract(p1p0, tri[1], tri[0]);
+	vec3.subtract(p2p0, tri[2], tri[0]);
+	vec3.cross(vec, p1p0, p2p0);
+	var a1 = vec[0] * vec[0];
+	var a2 = vec[1] * vec[1];
+	var a3 = vec[2] * vec[2];
+	return 0.5 * Math.sqrt(a1+a2+a3);
+}
 
 // Funzione di Render principale
 TestScene.prototype._Render = function () {
