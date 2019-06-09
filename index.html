@@ -4,8 +4,22 @@
     <title>First Person Dungeon Crawler</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<body onload="Init();">
-	<canvas id="gl-surface">
+<body>
+
+    <div id="controls" class="hidden">
+        <p>Forward: W/↑</p>
+        <p>Back: S/↓</p>
+        <p>Right: D/→</p>
+        <p>Forward: A/←</p>
+    </div>
+
+    <div id="menu">
+        <button onclick="Init(0);">DEBUG</button>
+        <br />
+        <button onclick="Init(1);">PLAY</button>
+    </div>
+
+	<canvas class="hidden" id="gl-surface">
 		Your browser does not support HTML5.
     </canvas>
     
@@ -24,7 +38,7 @@
     <script src="lib/Camera.js"></script>
     
     <!-- Carica le scene -->
-    <script src="scenes/DungeonScene.js"></script>
+    <script src="scenes/Dungeon1Scene.js"></script>
     <script src="scenes/TestScene.js"></script>
 </body>
 </html>

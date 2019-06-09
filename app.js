@@ -5,8 +5,13 @@
 var Dungeon;
 
 // Initializza webgl e carica la scena
-function Init() {
+function Init(difficulty) {
+	
 	var canvas = document.getElementById('gl-surface');
+	canvas.classList.remove('hidden');
+	document.getElementById('menu').classList.add('hidden');
+	document.getElementById('controls').classList.remove('hidden');
+
 	var gl = canvas.getContext('webgl');
     
     if (!gl) {
@@ -19,8 +24,21 @@ function Init() {
 		return;
 	}
 
-    // Crea il dungeon e carica la scena
-	Dungeon = new TestScene(gl);
+	switch (difficulty){
+		
+		case 0: // Debug mode
+			Dungeon = new TestScene(gl);
+			break;
+		
+		case 1:
+			Dungeon = new Dungeon1Scene(gl);
+			break;
+		
+		default:
+			alert('Invalid difficulty!');
+			return;
+	}
+
 	Dungeon.Load(function (error) {
 		if (error) {
 			alert('Could not load the scene - see console for more details');

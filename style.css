@@ -1,5 +1,42 @@
-* {
+canvas {
     margin: 0;
     padding: 0;
     position: absolute;
+    z-index: 1;
+}
+
+button {
+    background:    #3d85c6;
+    background:    linear-gradient(#3d85c6, #073763);
+    border-radius: 5px;
+    padding:       8px 20px;
+    color:         #ffffff;
+    display:       inline-block;
+    font:          normal bold 24px/1 "Open Sans", sans-serif;
+    text-align:    center;
+    text-shadow:   1px 1px #000000;
+}
+
+.hidden {
+    display: none;
+}
+
+#controls {
+    position: absolute;
+    top: 1%;
+    left: 7%;
+    color: white;
+    background-color: black;
+    opacity: 0.5;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 2;
+}
+
+#menu {
+    position:fixed;
+    top:46%;
+    left:46%;
+    display:block;
+    text-align: center;
 }

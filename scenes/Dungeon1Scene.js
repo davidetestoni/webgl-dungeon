@@ -1,16 +1,41 @@
-// Scena di test per esperimenti con la camera e il movimento
-
 'use strict';
 
+var occupation = [
+    ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"],
+    ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"," "," ","*","*","*","*","*","*"],
+    ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"," "," ","*","*","*","*","*","*"],
+    ["*","*","*","*","*","*","*","*","*","*","*","*"," "," "," ","*","*"," "," ","*","*","*","*","*"],
+    ["*","*","*","*","*","*","*","*","*","*","*","*"," ","*"," "," "," ","*"," ","*","*","*","*","*"],
+    ["*","*","*","*","*","*"," ","*","*","*","*","*"," ","*","*"," "," ","*"," "," ","*","*","*","*"],
+    ["*","*","*","*","*","*"," ","*","*","*"," "," "," "," "," ","*","*","*"," "," ","*","*","*","*"],
+    ["*","*","*","*","*","*"," ","*","*","*"," ","*","*","*"," ","*"," ","*"," ","*","*","*","*","*"],
+    ["*","*","*","*","*","*"," ","*","*"," "," ","*"," "," "," ","*"," ","*"," ","*","*","*","*","*"],
+    ["*","*","*","*","*","*"," "," "," "," "," "," ","*"," "," ","*"," "," "," ","*","*","*","*","*"],
+    ["*","*","*","*","*","*","*","*","*"," "," ","*","*"," ","*"," "," ","*"," ","*","*","*","*","*"],
+    ["*","*","*","*","*","*"," "," "," ","*","*"," ","*"," ","*"," "," ","*"," ","*","*","*","*","*"],
+    ["*","*","*","*"," "," "," "," "," "," "," "," "," "," ","*"," ","*"," "," "," ","*"," ","*","*"],
+    ["*","*","*","*"," ","*"," "," "," ","*","*"," ","*","*"," "," ","*","*"," ","*"," "," "," ","*"],
+    ["*","*","*","*"," ","*","*","*","*","*","*","*"," "," "," "," ","*"," "," "," ","*"," ","*","*"],
+    ["*","*"," "," "," "," "," "," "," "," "," "," "," ","*","*"," ","*"," "," "," ","*"," ","*","*"],
+    ["*","*"," ","*"," ","*","*","*","*","*","*","*","*","*","*"," "," ","*"," ","*"," "," ","*","*"],
+    ["*","*"," ","*"," "," "," "," "," "," "," "," "," "," "," ","*"," "," "," "," "," ","*","*","*"],
+    ["*","*"," ","*"," "," "," ","*","*","*"," "," "," ","*","*","*","*","*"," ","*","*","*","*","*"],
+    ["*","*"," ","*","*","*","*","*"," ","*"," ","*","*"," "," "," "," "," "," ","*","*","*","*","*"],
+    ["*"," "," "," ","*","*","*"," "," "," "," "," "," "," ","*","*","*","*","*","*","*","*","*","*"],
+    ["*"," "," "," "," "," "," "," ","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"],
+    ["*"," "," "," ","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"],
+    ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"]
+	]; // 24 x 24
+
 // Costruttore dato un contesto webgl
-var TestScene = function (gl) {
+var Dungeon1Scene = function (gl) {
 	this.gl = gl;
 };
 
 // Carica la scena
-TestScene.prototype.Load = function (cb) {
+Dungeon1Scene.prototype.Load = function (cb) {
     
-    console.log('Loading test scene');
+    console.log('Loading the dungeon (difficulty: 1)');
 
     // Questo serve a evitare errori nel callback passandogli 'this' dato
     // che le funzioni vengono ottimizzate prima che 'this' sia creato
@@ -43,9 +68,6 @@ TestScene.prototype.Load = function (cb) {
 
             var mesh = loadResults.Models.TestModel.meshes[i];
 
-            // TEMP: Per ora visualizziamo solo il piano
-            // if (mesh.name !== 'Plane.010') break;
-
             // Crea l'oggetto
             var model = new Model(
                 me.gl,
@@ -56,17 +78,6 @@ TestScene.prototype.Load = function (cb) {
                 baseColor
             );
 
-            // Cerca la trasformazione e setta la world matrix del modello scalato, ruotato e traslato
-            /*
-            var transf = []
-            for (var j = 0; j < loadResults.Models.TestModel.rootnode.children.length; j++){
-                var node = loadResults.Models.TestModel.rootnode.children[j];
-                if (node.name === model.name){
-                    model.world = mat4.multiply(model.world, model.world, node.transformation);
-                    break;
-                }
-            }
-            */
             // Inserisci il modello nella lista di modelli della scena
             me.Meshes.push(model);
         }
@@ -101,7 +112,7 @@ TestScene.prototype.Load = function (cb) {
 
 		// Crea la telecamera sull asse positivo delle Z che guarda l'origine
 		me.camera = new Camera(
-			vec3.fromValues(0, 0.5, 0), //Posizione iniziale della camera
+			vec3.fromValues(0, 0.5, 0), //Posizione iniziale della camera nell'origine
 			0, // alpha
 			0  // beta
 		);
@@ -123,36 +134,30 @@ TestScene.prototype.Load = function (cb) {
 	});
 
 	me.PressedKeys = {
-		Up: false,
-		Right: false,
-		Down: false,
-		Left: false,
 		Forward: false,
 		Back: false,
-
 		RotLeft: false,
 		RotRight: false,
     };
-    
-    me.MousePosition = {
-        X: 0.0,
-        Y: 0.0,
-        DX: 0.0,
-        DY: 0.0,
-        Initialized: false
-    };
 
-    // Imposta la velocità di movimento (può incrementare con power-up)
-	me.MoveForwardSpeed = 3.5;
-	me.RotateSpeed = 1.5;
+	// Settiamo la cella iniziale nella tabella delle occupation
+	me.Cell = {
+		X: 6,
+		Y: 9
+	}
 
-	// Imposta la hitbox del personaggio
-	me.hitboxWidth = 1;
-	me.hitboxHeight = 1;
+	// Settiamo la direzione iniziale
+	me.Direction = "up";
+
+	me.StepValue = 1; // Di quanto ci muoviamo se facciamo un passo in avanti
+	me.RotateDelay = 200; // Quanto velocemente ruotiamo con le frecce dx/sx
+	me.MoveDelay = 500; // Quanto velocemente andiamo avanti
+
+	me.IsMoving = false; // Non stiamo facendo l'animazione del movimento, quindi accettiamo gli input del player
 };
 
 // Scarica la scena dalla memoria
-TestScene.prototype.Unload = function () {
+Dungeon1Scene.prototype.Unload = function () {
     
 	this.Program = null;
 
@@ -163,13 +168,15 @@ TestScene.prototype.Unload = function () {
 
 	this.PressedKeys = null;
 
-	this.MoveForwardSpeed = null;
-	this.RotateSpeed = null;
+	this.StepValue = null;
+	this.RotateDelay = null;
+	this.MoveDelay = null;
+	this.IsMoving = null;
 };
 
 // Aggancia gli eventi e inizia il loop
-TestScene.prototype.Begin = function () {
-	console.log('Beginning test scene');
+Dungeon1Scene.prototype.Begin = function () {
+	console.log('Beginning the scene');
 
 	var me = this;
 
@@ -177,12 +184,10 @@ TestScene.prototype.Begin = function () {
 	this.__ResizeWindowListener = this._OnResizeWindow.bind(this);
 	this.__KeyDownWindowListener = this._OnKeyDown.bind(this);
     this.__KeyUpWindowListener = this._OnKeyUp.bind(this);
-    this.__MouseMoveWindowListener = this._OnMouseMove.bind(this);
 
 	AddEvent(window, 'resize', this.__ResizeWindowListener);
 	AddEvent(window, 'keydown', this.__KeyDownWindowListener);
     AddEvent(window, 'keyup', this.__KeyUpWindowListener);
-    AddEvent(window, 'mousemove', this.__MouseMoveWindowListener);
 	
 	var previousFrame = performance.now(); // istante del frame precedente
     var dt = 0; // il delta di tempo tra un frame e l'altro
@@ -214,7 +219,7 @@ TestScene.prototype.Begin = function () {
 };
 
 // Sgancia gli eventi e termina il loop
-TestScene.prototype.End = function () {
+Dungeon1Scene.prototype.End = function () {
 	if (this.__ResizeWindowListener) {
 		RemoveEvent(window, 'resize', this.__ResizeWindowListener);
 	}
@@ -236,57 +241,110 @@ Metodi privati
 
 // Fai l'update della telecamera e della posizione/rotazione degli oggetti
 // in base a quali tasti sono premuti quando viene disegnato il frame
-TestScene.prototype._Update = function (dt) {
+Dungeon1Scene.prototype._Update = function (dt) {
 
-    // Muovi la telecamera tramite i tasti
-	if (this.PressedKeys.Forward && !this.PressedKeys.Back) {
-		this.camera.moveForward(dt / 1000 * this.MoveForwardSpeed);
+	var me = this;
+	
+	// Se ci stiamo muovendo, non accettiamo input quindi ritorna
+	if (me.IsMoving) return;
+
+	// Se premiamo destra, ruota di 90 gradi a destra
+	if (this.PressedKeys.RotRight){
+		this.camera.rotateRight(glMatrix.toRadian(90));
+		me.Direction = this.GetNextDirection(true);
+		me.IsMoving = true;
+		setTimeout(function() {me.IsMoving = false; }, me.RotateDelay); // Sblocca i comandi finita la rotazione
 	}
 
-	if (this.PressedKeys.Back && !this.PressedKeys.Forward) {
-		this.camera.moveForward(-dt / 1000 * this.MoveForwardSpeed);
+	// Se premiamo sinistra, ruota di -90 gradi a destra
+	if (this.PressedKeys.RotLeft){
+		this.camera.rotateRight(glMatrix.toRadian(-90));
+		me.Direction = this.GetNextDirection(false);
+		me.IsMoving = true;
+		setTimeout(function() {me.IsMoving = false; }, me.RotateDelay); // Sblocca i comandi finita la rotazione
 	}
 
-	if (this.PressedKeys.Right && !this.PressedKeys.Left) {
-		this.camera.moveRight(dt / 1000 * this.MoveForwardSpeed);
+	// Se premiamo avanti e non ci sono muri, vai avanti di uno step
+	if (this.PressedKeys.Forward){
+		var target = this.GetTargetCell(false);
+		if (occupation[target.Y][target.X] == ' '){
+			this.camera.moveForward(me.StepValue);
+			me.Cell = target;
+			me.IsMoving = true;
+			setTimeout(function() {me.IsMoving = false; }, me.MoveDelay); // Sblocca i comandi finito il movimento
+		}
 	}
 
-	if (this.PressedKeys.Left && !this.PressedKeys.Right) {
-		this.camera.moveRight(-dt / 1000 * this.MoveForwardSpeed);
+	// Se premiamo indietro e non ci sono muri, vai indietro di uno step
+	if (this.PressedKeys.Back){
+		var target = this.GetTargetCell(true);
+		if (occupation[target.Y][target.X] == ' '){
+			this.camera.moveForward(-me.StepValue);
+			me.Cell = target;
+			me.IsMoving = true;
+			setTimeout(function() {me.IsMoving = false; }, me.MoveDelay); // Sblocca i comandi finito il movimento
+		}
 	}
-
-	if (this.PressedKeys.Up && !this.PressedKeys.Down) {
-		this.camera.rotateUp(dt / 1000 * this.MoveForwardSpeed);
-	}
-
-	if (this.PressedKeys.Down && !this.PressedKeys.Up) {
-		this.camera.rotateUp(-dt / 1000 * this.MoveForwardSpeed);
-	}
-
-	if (this.PressedKeys.RotRight && !this.PressedKeys.RotLeft) {
-		this.camera.rotateRight(dt / 1000 * this.RotateSpeed);
-	}
-
-	if (this.PressedKeys.RotLeft && !this.PressedKeys.RotRight) {
-		this.camera.rotateRight(-dt / 1000 * this.RotateSpeed);
-    }
-    
-    
-    if (this.MousePosition.DX !== 0.0){
-        this.camera.rotateRight(-dt / 1000 * this.RotateSpeed * this.MousePosition.DX);
-        this.MousePosition.DX = 0.0;
-    }
-
-    if (this.MousePosition.DY !== 0.0){
-        this.camera.rotateUp(dt / 1000 * this.RotateSpeed * this.MousePosition.DY);
-        this.MousePosition.DY = 0.0;
-    }
 
 	this.camera.GetViewMatrix(this.viewMatrix);
 };
 
+Dungeon1Scene.prototype.GetTargetCell = function (behind) {
+	
+	// Dovremmo verificare anche se siamo fuori dai bordi della matrice ma la matrice è stata fatta in modo che questo non succeda
+	var dir = this.Direction;
+	if (behind){
+		switch (dir){
+			case 'right':
+				dir = 'left';
+				break;
+
+			case 'left':
+				dir = 'right';
+				break;
+
+			case 'up':
+				dir = 'down';
+				break;
+
+			case 'down':
+				dir = 'up';
+				break;
+		}
+	}
+
+	switch(dir){
+		case 'right':
+			return { Y: this.Cell.Y, X: this.Cell.X + 1 };
+
+		case 'left':
+			return { Y: this.Cell.Y, X: this.Cell.X - 1 };
+
+		case 'up':
+			return { Y: this.Cell.Y - 1, X: this.Cell.X };
+
+		case 'down':
+			return { Y: this.Cell.Y + 1, X: this.Cell.X };
+	}
+};
+
+Dungeon1Scene.prototype.GetNextDirection = function(clockwise) {
+
+	var directions = ["up", "right", "down", "left"];
+	var index = directions.indexOf(this.Direction);
+
+	if (clockwise){
+		if (index == directions.length - 1) return directions[0];
+		else return directions[index + 1];
+	}
+	else {
+		if (index == 0) return directions[directions.length - 1];
+		else return directions[index - 1];
+	}
+}
+
 // Funzione di Render principale
-TestScene.prototype._Render = function () {
+Dungeon1Scene.prototype._Render = function () {
     
     // Ottieni una reference comoda per gl
     var gl = this.gl;
@@ -359,7 +417,7 @@ Listener degli eventi
 */
 
 // Ridimensiona il canvas quando la finestra viene ridimensionata
-TestScene.prototype._OnResizeWindow = function () {
+Dungeon1Scene.prototype._OnResizeWindow = function () {
     
     var gl = this.gl;
 
@@ -387,97 +445,56 @@ TestScene.prototype._OnResizeWindow = function () {
 	gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 };
 
-TestScene.prototype._OnKeyDown = function (e) {
+Dungeon1Scene.prototype._OnKeyDown = function (e) {
 	switch(e.code) {
 
-        // Movimento WASD
+        // Movimento in avanti/indietro
 		case 'KeyW':
+		case 'ArrowUp':
 			this.PressedKeys.Forward = true;
 			break;
-		case 'KeyA':
-			this.PressedKeys.Left = true;
-            break;
-        case 'KeyS':
+
+		case 'KeyS':
+		case 'ArrowDown':
 			this.PressedKeys.Back = true;
 			break;
+
+		// Rotazione SX/DX
 		case 'KeyD':
-			this.PressedKeys.Right = true;
-            break;
-            
-        // Movimento SU/GIU
-		case 'ArrowUp':
-			this.PressedKeys.Up = true;
-			break;
-		case 'ArrowDown':
-			this.PressedKeys.Down = true;
-            break;
-            
-        // Rotazione SX/DX
 		case 'ArrowRight':
 			this.PressedKeys.RotRight = true;
 			break;
+
+		case 'KeyA':
 		case 'ArrowLeft':
 			this.PressedKeys.RotLeft = true;
 			break;
 	}
 };
 
-TestScene.prototype._OnKeyUp = function (e) {
+Dungeon1Scene.prototype._OnKeyUp = function (e) {
 	switch(e.code) {
 
-        // Movimento WASD
+        // Movimento in avanti/indietro
 		case 'KeyW':
+		case 'ArrowUp':
 			this.PressedKeys.Forward = false;
 			break;
-		case 'KeyA':
-			this.PressedKeys.Left = false;
-            break;
-        case 'KeyS':
+
+		case 'KeyS':
+		case 'ArrowDown':
 			this.PressedKeys.Back = false;
 			break;
+
+		// Rotazione SX/DX
 		case 'KeyD':
-			this.PressedKeys.Right = false;
-            break;
-            
-        // Movimento SU/GIU
-		case 'ArrowUp':
-			this.PressedKeys.Up = false;
-			break;
-		case 'ArrowDown':
-			this.PressedKeys.Down = false;
-            break;
-            
-        // Rotazione SX/DX
 		case 'ArrowRight':
 			this.PressedKeys.RotRight = false;
 			break;
+
+		case 'KeyA':
 		case 'ArrowLeft':
 			this.PressedKeys.RotLeft = false;
 			break;
 	}
-};
-
-TestScene.prototype._OnMouseMove = function (e) {
-
-    var mp = this.MousePosition;
-
-    var newx = e.clientX;
-    var newy = e.clientY;
-
-    // Se la posizione del mouse non era ancora stata inizializzata,
-    // setta tutti i valori con la posizione corrente
-    if (!mp.Initialized){
-        mp.X = newx;
-        mp.Y = newy;
-        mp.Initialized = true;
-        return;
-    }    
-
-    // Incrementa o decrementa i delta spaziali
-    mp.DX += newx - mp.X;
-    mp.DY += newy - mp.Y;
-
-    // Imposta le nuove coordinate
-    mp.X = newx;
-    mp.Y = newy;
 };
