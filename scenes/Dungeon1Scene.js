@@ -149,11 +149,24 @@ Dungeon1Scene.prototype.Load = function (cb) {
 	// Settiamo la direzione iniziale
 	me.Direction = "up";
 
-	me.StepValue = 1; // Di quanto ci muoviamo se facciamo un passo in avanti
 	me.RotateDelay = 200; // Quanto velocemente ruotiamo con le frecce dx/sx
 	me.MoveDelay = 500; // Quanto velocemente andiamo avanti
 
 	me.IsMoving = false; // Non stiamo facendo l'animazione del movimento, quindi accettiamo gli input del player
+	me.IsRotating = false;
+
+	me.MovementAnimation = {
+		direction: "forward", // La direzione dell'animazione
+		covered: 0, // La distanza ricoperta finora
+		start: performance.now(), // Il tempo di inizio dell'animazione
+		duration: 500 // La durata
+	};
+	me.RotationAnimation = {
+		direction: "right",
+		covered: 0,
+		start: performance.now(),
+		duration: 250
+	};
 };
 
 // Scarica la scena dalla memoria
@@ -168,10 +181,12 @@ Dungeon1Scene.prototype.Unload = function () {
 
 	this.PressedKeys = null;
 
-	this.StepValue = null;
 	this.RotateDelay = null;
 	this.MoveDelay = null;
 	this.IsMoving = null;
+	this.IsRotating = null;
+	this.MovementAnimation = null;
+	this.RotationAnimation = null;
 };
 
 // Aggancia gli eventi e inizia il loop
@@ -245,49 +260,140 @@ Dungeon1Scene.prototype._Update = function (dt) {
 
 	var me = this;
 	
-	// Se ci stiamo muovendo, non accettiamo input quindi ritorna
-	if (me.IsMoving) return;
+	// Se ci stiamo muovendo, non accettiamo input ma facciamo il display dell'animazione
+	if (me.IsMoving) {
+
+		var entity = this.Interpolate(1, this.MovementAnimation.duration, performance.now() - this.MovementAnimation.start);
+
+		// Ci muoviamo di una quantità che equivale al punto in cui dovremmo essere meno la distanza già coperta
+		if (me.MovementAnimation.direction == 'forward'){
+
+			this.camera.moveForward(entity - this.MovementAnimation.covered);
+		}
+		else{
+
+			this.camera.moveForward(-(entity - this.MovementAnimation.covered));
+		}
+
+		this.MovementAnimation.covered = entity;
+
+		this.camera.GetViewMatrix(this.viewMatrix);
+		return;
+	}
+	// Se ci stiamo ruotando, non accettiamo input ma facciamo il display dell'animazione
+	else if (me.IsRotating){
+
+		var entity = this.Interpolate(glMatrix.toRadian(90), this.RotationAnimation.duration, performance.now() - this.RotationAnimation.start);
+
+		if (me.RotationAnimation.direction == 'right'){
+
+			this.camera.rotateRight(entity - this.RotationAnimation.covered);
+		}
+		else{
+
+			this.camera.rotateRight(-(entity - this.RotationAnimation.covered));
+		}
+
+		this.RotationAnimation.covered = entity;
+
+		this.camera.GetViewMatrix(this.viewMatrix);
+		return;
+	}
 
 	// Se premiamo destra, ruota di 90 gradi a destra
 	if (this.PressedKeys.RotRight){
-		this.camera.rotateRight(glMatrix.toRadian(90));
+		//this.camera.rotateRight(glMatrix.toRadian(90));
 		me.Direction = this.GetNextDirection(true);
-		me.IsMoving = true;
-		setTimeout(function() {me.IsMoving = false; }, me.RotateDelay); // Sblocca i comandi finita la rotazione
+		me.IsRotating = true;
+		
+		me.RotationAnimation = {
+			direction: 'right',
+			covered: 0,
+			start: performance.now(),
+			duration: me.RotateDelay
+		}
+
+		setTimeout(function() {me.IsRotating = false; me.PerformFinalRotation(1); }, me.RotateDelay); // Sblocca i comandi finita la rotazione
 	}
 
 	// Se premiamo sinistra, ruota di -90 gradi a destra
-	if (this.PressedKeys.RotLeft){
-		this.camera.rotateRight(glMatrix.toRadian(-90));
+	else if (this.PressedKeys.RotLeft){
+		//this.camera.rotateRight(glMatrix.toRadian(-90));
 		me.Direction = this.GetNextDirection(false);
-		me.IsMoving = true;
-		setTimeout(function() {me.IsMoving = false; }, me.RotateDelay); // Sblocca i comandi finita la rotazione
+		me.IsRotating = true;
+		
+		me.RotationAnimation = {
+			direction: 'left',
+			covered: 0,
+			start: performance.now(),
+			duration: me.RotateDelay
+		}
+
+		setTimeout(function() {me.IsRotating = false; me.PerformFinalRotation(-1); }, me.RotateDelay); // Sblocca i comandi finita la rotazione
 	}
 
 	// Se premiamo avanti e non ci sono muri, vai avanti di uno step
-	if (this.PressedKeys.Forward){
+	else if (this.PressedKeys.Forward){
 		var target = this.GetTargetCell(false);
 		if (occupation[target.Y][target.X] == ' '){
-			this.camera.moveForward(me.StepValue);
+			//this.camera.moveForward(1);
 			me.Cell = target;
 			me.IsMoving = true;
-			setTimeout(function() {me.IsMoving = false; }, me.MoveDelay); // Sblocca i comandi finito il movimento
+			
+			me.MovementAnimation = {
+				direction: 'forward',
+				covered: 0,
+				start: performance.now(),
+				duration: me.MoveDelay
+			}
+
+			setTimeout(function() {me.IsMoving = false; me.PerformFinalMovement(1); }, me.MoveDelay); // Sblocca i comandi finito il movimento
 		}
 	}
 
 	// Se premiamo indietro e non ci sono muri, vai indietro di uno step
-	if (this.PressedKeys.Back){
+	else if (this.PressedKeys.Back){
 		var target = this.GetTargetCell(true);
 		if (occupation[target.Y][target.X] == ' '){
-			this.camera.moveForward(-me.StepValue);
+			//this.camera.moveForward(-1);
 			me.Cell = target;
 			me.IsMoving = true;
-			setTimeout(function() {me.IsMoving = false; }, me.MoveDelay); // Sblocca i comandi finito il movimento
+			
+			me.MovementAnimation = {
+				direction: 'back',
+				covered: 0,
+				start: performance.now(),
+				duration: me.MoveDelay
+			}
+
+			setTimeout(function() { me.IsMoving = false; me.PerformFinalMovement(-1); }, me.MoveDelay); // Sblocca i comandi finito il movimento
 		}
 	}
 
 	this.camera.GetViewMatrix(this.viewMatrix);
 };
+
+Dungeon1Scene.prototype.Interpolate = function(targetPoint, animationTime, currentTime) {
+
+	// Calcola il coeff. angolare della retta passante per l'origine
+	var m = targetPoint / animationTime;
+
+	// Ritorna la posizione in cui dovremmo essere ora
+	return m * currentTime;
+};
+
+Dungeon1Scene.prototype.PerformFinalMovement = function(forward) {
+
+	// Se non facciamo questo, l'animazione potrebbe fermarsi prima di aver raggiunto il punto finale e muoversi ad es. di 0.97 invece che 1
+	this.camera.moveForward(forward * (1 - this.MovementAnimation.covered));
+	this.camera.GetViewMatrix(this.viewMatrix);
+}
+
+Dungeon1Scene.prototype.PerformFinalRotation = function(right) {
+
+	this.camera.rotateRight(right * (glMatrix.toRadian(90) - this.RotationAnimation.covered));
+	this.camera.GetViewMatrix(this.viewMatrix);
+}
 
 Dungeon1Scene.prototype.GetTargetCell = function (behind) {
 	
