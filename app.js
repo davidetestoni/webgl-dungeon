@@ -11,6 +11,7 @@ function Init(difficulty) {
 	canvas.classList.remove('hidden');
 	document.getElementById('menu').classList.add('hidden');
 	document.getElementById('controls').classList.remove('hidden');
+	document.getElementById('contenitore').classList.remove('hidden');
 
 	var gl = canvas.getContext('webgl');
     

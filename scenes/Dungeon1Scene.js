@@ -83,7 +83,7 @@ Dungeon1Scene.prototype.Load = function (cb) {
         }
 
         // Imposta la posizione della point light nella scena
-        me.lightPosition = vec3.fromValues(0, 0.0, 2.98971);
+        me.lightPosition = vec3.fromValues(3, 1,0);
 
 		// Crea il programma
 		me.Program = CreateShaderProgram(
@@ -101,8 +101,11 @@ Dungeon1Scene.prototype.Load = function (cb) {
 			mProj: me.gl.getUniformLocation(me.Program, 'mProj'),
 			mView: me.gl.getUniformLocation(me.Program, 'mView'),
 			mWorld: me.gl.getUniformLocation(me.Program, 'mWorld'),
-
+			//variabili dello shader per la point light
+			PLightDecay: me.gl.getUniformLocation(me.Program, 'PLightDecay'),
+			PLightTarget: me.gl.getUniformLocation(me.Program, 'PLightTarget'),
 			pointLightPosition: me.gl.getUniformLocation(me.Program, 'pointLightPosition'),
+			
 			meshColor: me.gl.getUniformLocation(me.Program, 'meshColor'),
 		};
 		me.Program.attribs = {
@@ -454,6 +457,11 @@ Dungeon1Scene.prototype._Render = function () {
     
     // Ottieni una reference comoda per gl
     var gl = this.gl;
+   
+//prendo i valori dalla pagina HTML e creo il vettore posizione point light
+    var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
+  	var Decay= document.getElementById("PLightDecay").value/10;
+  	  	var Target= document.getElementById("PLightTarget").value/2;
 
     // Abilita backface culling e zorder
 	gl.enable(gl.CULL_FACE);
@@ -475,7 +483,11 @@ Dungeon1Scene.prototype._Render = function () {
     // (location, transpose, value)
 	gl.uniformMatrix4fv(this.Program.uniforms.mProj, gl.FALSE, this.projMatrix);
     gl.uniformMatrix4fv(this.Program.uniforms.mView, gl.FALSE, this.viewMatrix);
-	gl.uniform3fv(this.Program.uniforms.pointLightPosition, this.lightPosition);
+
+    //ogni ciclo di render passo allo shader i nuovi valori di posizione decay e target
+	gl.uniform3fv(this.Program.uniforms.pointLightPosition, PLpositions);
+	gl.uniform1f(this.Program.uniforms.PLightDecay,Decay );
+	gl.uniform1f(this.Program.uniforms.PLightTarget,Target );
 
 	// Disegna i modelli
 	for (var i = 0; i < this.Meshes.length; i++) {

@@ -20,6 +20,20 @@ button {
 .hidden {
     display: none;
 }
+#contenitore{
+    border: 2px solid black;
+    position: absolute;
+    top: 80%;
+    left: 5%;
+    width:90%;
+    color: white;
+    background-color: black;
+    opacity: 0.5;
+    padding: 0px;
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 3;
+}
+
 
 #controls {
     position: absolute;

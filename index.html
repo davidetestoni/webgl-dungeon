@@ -19,10 +19,25 @@
         <button onclick="Init(1);">PLAY</button>
     </div>
 
-	<canvas class="hidden" id="gl-surface">
+	<canvas class="hidden" id="gl-surface" >
 		Your browser does not support HTML5.
     </canvas>
-    
+
+
+    //Contenitore per modificare luci e effetti
+
+    <div id="contenitore">
+        point light x point light y point light y
+    //con questi si puo cambiare la posizione della point light in un certo range, ancora da modificare
+        <input type="range" min="-100" max="100" id="PLightX">
+        <input type="range" min="-100" max="100" id="PLightY">
+        <input type="range" min="-100" max="100" id="PLightZ"><br>
+
+        //qui si puo cambiare il target e il decay... sul target ci siamo, sul decay non capisco perche lui usa dei valori tipo 0,1,2 mentre a me produce un effetto sensato solo con valori tra 0 e 1 circa
+        decay  target<br>
+        <input type="range" min="1" max="10" id="PLightDecay">
+        <input type="range" min="1" max="100" id="PLightTarget"> 
+    </div>
     <!-- Carica le librerie di terze parti -->
 	<script src="lib/dist/async.js"></script>
 	<script src="lib/dist/gl-matrix.js"></script>
