@@ -39,7 +39,7 @@ vec4 lightColor=vec4(1.0,0.0,0.0,1.0)*pow(PLightTarget/length(pointLightPosition
 
 //poi calcolo l'effetto Lambert che e in funzione delle normali ai vertici e quindi ci permette di avere colori diversi in base all'angolazione della luce
 //aggiungo poi un componente momentaneo vec3(0.3 ...) in modo che anche le superfici non illuminate siano visibili e non nere
-vec4 out_color = lightColor * clamp(dot(fNorm, toLightNormal),0.0,1.0) * vec4(1.0,0.0,0.0,1.0)+vec4(0.6,0.6,0.6,0.0);
+vec4 out_color = lightColor * clamp(dot(fNorm, toLightNormal),0.0,1.0) * vec4(1.0,0.0,0.0,1.0)+vec4(0.2,0.2,0.2,0.0);
     
 
 

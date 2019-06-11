@@ -460,8 +460,8 @@ Dungeon1Scene.prototype._Render = function () {
    
 //prendo i valori dalla pagina HTML e creo il vettore posizione point light
     var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
-  	var Decay= document.getElementById("PLightDecay").value/10;
-  	  	var Target= document.getElementById("PLightTarget").value/2;
+  	var Decay= document.getElementById("PLightDecay").value/5;
+  	  	var Target= document.getElementById("PLightTarget").value/20;
 
     // Abilita backface culling e zorder
 	gl.enable(gl.CULL_FACE);
