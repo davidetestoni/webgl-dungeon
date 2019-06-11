@@ -117,7 +117,7 @@ Dungeon1Scene.prototype.Load = function (cb) {
 		me.camera = new Camera(
 			vec3.fromValues(0, 0.5, 0), //Posizione iniziale della camera nell'origine
 			0, // alpha
-			0  // beta
+			-Math.PI/2  // beta
 		);
 
         me.viewMatrix = mat4.create();
@@ -150,7 +150,7 @@ Dungeon1Scene.prototype.Load = function (cb) {
 	}
 
 	// Settiamo la direzione iniziale
-	me.Direction = "up";
+	me.Direction = "right";
 
 	me.RotateDelay = 200; // Quanto velocemente ruotiamo con le frecce dx/sx
 	me.MoveDelay = 500; // Quanto velocemente andiamo avanti

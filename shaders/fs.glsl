@@ -39,16 +39,16 @@ vec4 lightColor=vec4(1.0,0.0,0.0,1.0)*pow(PLightTarget/length(pointLightPosition
 
 //poi calcolo l'effetto Lambert che e in funzione delle normali ai vertici e quindi ci permette di avere colori diversi in base all'angolazione della luce
 //aggiungo poi un componente momentaneo vec3(0.3 ...) in modo che anche le superfici non illuminate siano visibili e non nere
-vec4 out_color = lightColor * clamp(dot(fNorm, toLightNormal),0.0,1.0) * vec4(1.0,0.0,0.0,1.0)+vec4(0.2,0.2,0.2,0.0);
+vec4 out_color = lightColor * clamp(dot(fNorm, toLightNormal),0.0,1.0) * vec4(1.0,0.0,0.0,1.0)+vec4(1.0,0.0,0.0,0.0);
     
 
 
-    float lightIntensity = 0.6 + 0.4 * max(dot(fNorm, toLightNormal), 0.0) ;
+    float lightIntensity =  0.4 * max(dot(fNorm, toLightNormal), 0.0) ;
 
 
 
     // il colore risultante è il colore della mesh * intensità luminosa più il canale alfa della mesh
 	//gl_FragColor = vec4(meshColor.rgb * lightIntensity, meshColor.a);
     //il contributo della luce (out_color) andrebbe moltiplicato per il colore della mesh.. per ora abbiamo mesh tutte dello stesso colore quindi non faccio questo passaggio
-    gl_FragColor= vec4(out_color.rgb,meshColor.a);
+    gl_FragColor= vec4(out_color.rgb*lightIntensity,meshColor.a);
 }
