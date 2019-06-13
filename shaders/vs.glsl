@@ -14,9 +14,8 @@ varying vec3 fNorm;
 void main()
 {
     // Settiamo fPos e fNorm in coordinate world
-    // QUESTO VA CAMBIATO CON COORDINATE CAMERA COME RICHIESTO!
+    // QUESTO VA CAMBIATO CON COORDINATE CAMERA COME RICHIESTO! per come lo abbiamo implementato ora il vertex dovrebbe gia essre corrretto
 	fPos = (mWorld * vec4(vPos, 1.0)).xyz;
 	fNorm = (mWorld * vec4(vNorm, 0.0)).xyz;
-
 	gl_Position = mProj * mView * vec4(fPos, 1.0);
 }

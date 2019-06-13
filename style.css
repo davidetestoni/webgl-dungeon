@@ -22,10 +22,18 @@ button {
 .hidden {
     display: none;
 }
+
+#allMenus{
+
+position: relative;
+width: 100%;
+
+}
+
+
 #showMenu{
 width:auto;
 position: relative;
-//height: 10px;
 background-color: white;
 color: black;
 text-align: center;
@@ -57,14 +65,16 @@ width:30%;
 height: 10%;
 
 }
-#PointLightblock{
-        padding : 1px;
+.Comp{
+ padding : 2px;
     float: left;
-    height: 20%;
+   height: 20%;
     border: 2px solid black;
-    width: 50%;
+    width: 49%;
     position: relative;
+
 }
+
 
 #controls {
     position: absolute;

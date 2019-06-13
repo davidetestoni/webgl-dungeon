@@ -12,7 +12,6 @@ function Init(difficulty) {
 	document.getElementById('menu').classList.add('hidden');
 	document.getElementById('controls').classList.remove('hidden');
 	document.getElementById('contenitore').classList.remove('hidden');
-
 	var gl = canvas.getContext('webgl');
     
     if (!gl) {
@@ -48,4 +47,7 @@ function Init(difficulty) {
 			Dungeon.Begin();
 		}
 	});
+
+		
+
 }

@@ -27,15 +27,65 @@ var occupation = [
     ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"]
 	]; // 24 x 24
 
+var Lights= {
+
+pointLightPosition: [0,0,0],
+PLightDecay: 2 ,
+PLightTarget: 3 ,
+PLColor:[1.0,0.0,0.0,1.0],
+ambientLightColor : [1.0,0.0,1.0,1.0],
+ambientLightLowColor: [1.0,1.0,0.0,1.0],
+diffuseColor : [0.8,1.0,1.0,0.0],
+specularColor:[1.0,1.0,1.0,1.0],
+SpecShine : 100,
+ //DToonTh,
+ //SToonTh,
+ambientMatColor: [0.0,0.1,0.0,1.0],
+emitColor: [0.1,0.0,0.0,1.0],
+ambientType :[1.0],
+diffuseType: [1,0],
+specularType :[1,0],
+emissionType: [1,0]
+}
+
 // Costruttore dato un contesto webgl
 var Dungeon1Scene = function (gl) {
 	this.gl = gl;
 };
 
+function colorToRGB(ColorEX) {
+	var col = ColorEX.substring(1,7);
+    var R = parseInt(col.substring(0,2) ,16) / 255;
+    var G = parseInt(col.substring(2,4) ,16) / 255;
+    var B = parseInt(col.substring(4,6) ,16) / 255;
+	return [R,G,B,1.0];
+}
+var rgbToHex = function (rgb) { 
+  var hex = Number(rgb).toString(16);
+  if (hex.length < 2) {
+       hex = "0" + hex;
+  }
+  return hex;
+};
+function colorToHex(rgb) {
+		var Rhex= rgbToHex(Math.round(rgb[0]*255));
+		var Ghex= rgbToHex(Math.round(rgb[1]*255));
+		var Bhex= rgbToHex(Math.round(rgb[2]*255));
+
+  return "#" + Rhex +Ghex +Bhex;
+}
 // Carica la scena
 Dungeon1Scene.prototype.Load = function (cb) {
     
     console.log('Loading the dungeon (difficulty: 1)');
+
+    document.getElementById("PLightDecay").value=Lights.PLightDecay;
+	document.getElementById("PLightTarget").value=Lights.PLightTarget;
+	document.getElementById("diffuseLightColor").value=colorToHex(Lights.diffuseColor);
+	document.getElementById("pointLightColor").value=colorToHex(Lights.PLColor);
+	document.getElementById("emitLightColor").value=colorToHex(Lights.emitColor);
+	document.getElementById("ambientLightColor").value=colorToHex(Lights.ambientLightColor);
+
 
     // Questo serve a evitare errori nel callback passandogli 'this' dato
     // che le funzioni vengono ottimizzate prima che 'this' sia creato
@@ -83,7 +133,7 @@ Dungeon1Scene.prototype.Load = function (cb) {
         }
 
         // Imposta la posizione della point light nella scena
-        me.lightPosition = vec3.fromValues(3, 1,0);
+        //me.lightPosition = vec3.fromValues(3, 1,0); rimosso perche ora la posizione della point light viene presa dall'html ->impostata a (0,0,0) di default
 
 		// Crea il programma
 		me.Program = CreateShaderProgram(
@@ -105,8 +155,25 @@ Dungeon1Scene.prototype.Load = function (cb) {
 			PLightDecay: me.gl.getUniformLocation(me.Program, 'PLightDecay'),
 			PLightTarget: me.gl.getUniformLocation(me.Program, 'PLightTarget'),
 			pointLightPosition: me.gl.getUniformLocation(me.Program, 'pointLightPosition'),
-			
-			meshColor: me.gl.getUniformLocation(me.Program, 'meshColor'),
+
+			PLColor: me.gl.getUniformLocation(me.Program, 'PLColor'),
+			ambientLightColor: me.gl.getUniformLocation(me.Program, 'ambientLightColor'),
+			ambientLightLowColor: me.gl.getUniformLocation(me.Program, 'ambientLightLowColor'),
+			specularColor: me.gl.getUniformLocation(me.Program, 'specularColor'),
+			SpecShine: me.gl.getUniformLocation(me.Program, 'SpecShine'),
+			ambientMatColor: me.gl.getUniformLocation(me.Program, 'ambientMatColor'),
+			emitColor: me.gl.getUniformLocation(me.Program, 'emitColor'),
+			diffuseColor: me.gl.getUniformLocation(me.Program, 'diffuseColor'),
+
+				// tipi 
+			ambientType: me.gl.getUniformLocation(me.Program, 'ambientType'),
+			diffuseType: me.gl.getUniformLocation(me.Program, 'diffuseType'),
+			specularType: me.gl.getUniformLocation(me.Program, 'specularType'),
+			emissionType: me.gl.getUniformLocation(me.Program, 'emissionType'),
+
+
+
+			meshColor: me.gl.getUniformLocation(me.Program, 'meshColor')
 		};
 		me.Program.attribs = {
 			vPos: me.gl.getAttribLocation(me.Program, 'vPos'),
@@ -178,7 +245,7 @@ Dungeon1Scene.prototype.Unload = function () {
 	this.Program = null;
 
 	this.camera = null;
-	this.lightPosition = null;
+	//this.lightPosition = null; tolto momentaneamente
 
 	this.Meshes = null;
 
@@ -191,7 +258,83 @@ Dungeon1Scene.prototype.Unload = function () {
 	this.MovementAnimation = null;
 	this.RotationAnimation = null;
 };
+Dungeon1Scene.prototype.InitializeShader = function (cb) {
+	
+	var gl= this.gl;
+	gl.useProgram(this.Program);
 
+	gl.uniform1f(this.Program.uniforms.PLightDecay,Lights.PLightDecay );
+	gl.uniform1f(this.Program.uniforms.PLightTarget,Lights.PLightTarget );
+	gl.uniform1f(this.Program.uniforms.SpecShine,Lights.SpecShine );
+
+	gl.uniform4fv(this.Program.uniforms.ambientLightColor, Lights.ambientLightColor);
+	gl.uniform4fv(this.Program.uniforms.ambientLightLowColor, Lights.ambientLightLowColor);
+	gl.uniform4fv(this.Program.uniforms.specularColor, Lights.specularColor);
+	gl.uniform4fv(this.Program.uniforms.ambientMatColor, Lights.ambientMatColor);
+	//gl.uniform4fv(this.Program.uniforms.emitColor, Lights.emitColor);
+	gl.uniform4fv(this.Program.uniforms.PLColor, Lights.PLColor);	
+	gl.uniform4fv(this.Program.uniforms.diffuseColor, Lights.diffuseColor);	
+	gl.uniform4fv(this.Program.uniforms.emitColor, Lights.emitColor);	
+
+
+    gl.uniform3fv(this.Program.uniforms.pointLightPosition, this.camera.position);
+
+
+
+	gl.uniform2fv(this.Program.uniforms.ambientType, Lights.ambientType);	
+	gl.uniform2fv(this.Program.uniforms.diffuseType, Lights.diffuseType);	
+	gl.uniform2fv(this.Program.uniforms.specularType, Lights.specularType);	
+	gl.uniform2fv(this.Program.uniforms.emissionType, Lights.emissionType);	
+
+
+
+};
+
+
+Dungeon1Scene.prototype.getParameters = function (cb) {
+	
+	
+
+//prendo i valori direttamente daagli slider
+   Lights.PLightDecay= document.getElementById("PLightDecay").value;
+	Lights.PLightTarget=document.getElementById("PLightTarget").value;
+	Lights.PLColor= colorToRGB(document.getElementById("pointLightColor").value);
+	Lights.diffuseColor= colorToRGB(document.getElementById("diffuseLightColor").value);
+	Lights.ambientLightColor= colorToRGB(document.getElementById("ambientLightColor").value);
+	Lights.emitLightColor= colorToRGB(document.getElementById("emitLightColor").value);
+
+	//passo 1,o per il lambert e 01 per toon
+	if(document.getElementById("DiffuseType").value=="Lambert"){
+	 Lights.diffuseType= [1,0];
+	}else{
+	 Lights.diffuseType= [0,1];
+
+	}
+	//passo 1,0 per phong e 0,1 per blinn
+	if(document.getElementById("SpecularType").value=="Phong"){
+	 Lights.specularType= [1,0];
+	}else{
+	 Lights.specularType= [0,1];
+}
+	if(document.getElementById("AmbientType").value=="Ambient"){
+	 Lights.ambientType= [1,0];
+	}else{
+	 Lights.ambientType= [0,1];
+
+	}
+	
+	
+
+
+};
+Dungeon1Scene.prototype.SetShader = function (cb) {
+	
+	this.getParameters(cb);
+	this.InitializeShader();
+	
+
+
+};
 // Aggancia gli eventi e inizia il loop
 Dungeon1Scene.prototype.Begin = function () {
 	console.log('Beginning the scene');
@@ -210,6 +353,7 @@ Dungeon1Scene.prototype.Begin = function () {
 	var previousFrame = performance.now(); // istante del frame precedente
     var dt = 0; // il delta di tempo tra un frame e l'altro
     
+
     // Definizione della funzione di Render Loop
 	var loop = function (currentFrameTime) {
 
@@ -459,9 +603,12 @@ Dungeon1Scene.prototype._Render = function () {
     var gl = this.gl;
    
 //prendo i valori dalla pagina HTML e creo il vettore posizione point light
-    var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
-  	var Decay= document.getElementById("PLightDecay").value/5;
-  	  	var Target= document.getElementById("PLightTarget").value/20;
+   // var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
+  //	var Decay= document.getElementById("PLightDecay").value/5;
+ //	var Target= document.getElementById("PLightTarget").value/20;
+
+	
+
 
     // Abilita backface culling e zorder
 	gl.enable(gl.CULL_FACE);
@@ -483,21 +630,19 @@ Dungeon1Scene.prototype._Render = function () {
     // (location, transpose, value)
 	gl.uniformMatrix4fv(this.Program.uniforms.mProj, gl.FALSE, this.projMatrix);
     gl.uniformMatrix4fv(this.Program.uniforms.mView, gl.FALSE, this.viewMatrix);
-
+	//gl.uniform1f(this.Program.uniforms.PLightDecay,Decay );
+this.SetShader();
     //ogni ciclo di render passo allo shader i nuovi valori di posizione decay e target
-	gl.uniform3fv(this.Program.uniforms.pointLightPosition, PLpositions);
-	gl.uniform1f(this.Program.uniforms.PLightDecay,Decay );
-	gl.uniform1f(this.Program.uniforms.PLightTarget,Target );
+	//gl.uniform1f(this.Program.uniforms.PLightTarget,Target );
 
 	// Disegna i modelli
 	for (var i = 0; i < this.Meshes.length; i++) {
-        
+     
         // Uniform del modello
 		gl.uniformMatrix4fv(
 			this.Program.uniforms.mWorld,
 			gl.FALSE,
-			this.Meshes[i].world
-		);
+		this.Meshes[i].world	);
 		gl.uniform4fv(
 			this.Program.uniforms.meshColor,
 			this.Meshes[i].color
