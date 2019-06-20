@@ -26,6 +26,7 @@ var occupation = [
     ["*"," "," "," ","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"],
     ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"]
 	]; // 24 x 24
+var wallHack = false;
 
 var Lights= {
 
@@ -103,6 +104,17 @@ Dungeon1Scene.prototype.Load = function (cb) {
 				'vsText': 'shaders/vs.glsl',
 				'fsText': 'shaders/fs.glsl',
 			}, LoadTextResource, callback);
+		},
+		Images: function (callback) {
+			async.map({
+				'floor': 'assets/textures/floor.png',
+				'ceiling': 'assets/textures/ceiling.png',
+				'wall': 'assets/textures/wall.png',
+				'column': 'assets/textures/column.png',
+				'door': 'assets/textures/door.png',
+				'copperKey': 'assets/textures/copperKey.png',
+				'goldKey': 'assets/textures/goldKey.png'
+			}, LoadImage, callback);
 		}
 	}, function (loadErrors, loadResults) {
 		if (loadErrors) {
@@ -110,7 +122,9 @@ Dungeon1Scene.prototype.Load = function (cb) {
 			return;
 		}
 
-        me.Meshes = [];
+		// Meshes
+		me.Meshes = [];
+		var meshNames = ['Floor', 'WallW', 'WallE', 'WallN', 'WallS', 'Ceiling'];
         var baseColor = vec4.fromValues(0.5, 0.5, 0.5, 1.0);
 
 		// Crea gli oggetti con le informazioni dei modelli
@@ -121,16 +135,65 @@ Dungeon1Scene.prototype.Load = function (cb) {
             // Crea l'oggetto
             var model = new Model(
                 me.gl,
-                mesh.name,
+                meshNames[i],
                 mesh.vertices,
                 [].concat.apply([], mesh.faces),
-                mesh.normals,
+				mesh.normals,
+				mesh.texturecoords[0],
                 baseColor
             );
 
             // Inserisci il modello nella lista di modelli della scena
             me.Meshes.push(model);
         }
+
+		// Inizializza le textures
+		me.Textures = {
+			wallTexture: null,
+			floorTexture: null,
+			ceilingTexture: null
+		};		
+		
+		// Temporaneo, poi faccio un refactor!
+		me.Textures.wallTexture = me.gl.createTexture();
+		me.gl.bindTexture(me.gl.TEXTURE_2D, me.Textures.wallTexture);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_WRAP_S, me.gl.CLAMP_TO_EDGE);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_WRAP_T, me.gl.CLAMP_TO_EDGE);
+		me.gl.pixelStorei(me.gl.UNPACK_FLIP_Y_WEBGL, true)
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_MIN_FILTER, me.gl.LINEAR);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_MAG_FILTER, me.gl.LINEAR);
+		me.gl.texImage2D(
+			me.gl.TEXTURE_2D, 0, me.gl.RGBA, me.gl.RGBA,
+			me.gl.UNSIGNED_BYTE,
+			loadResults.Images['wall']
+		);
+		me.gl.bindTexture(me.gl.TEXTURE_2D, null);
+
+		me.Textures.floorTexture = me.gl.createTexture();
+		me.gl.bindTexture(me.gl.TEXTURE_2D, me.Textures.floorTexture);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_WRAP_S, me.gl.CLAMP_TO_EDGE);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_WRAP_T, me.gl.CLAMP_TO_EDGE);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_MIN_FILTER, me.gl.LINEAR);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_MAG_FILTER, me.gl.LINEAR);
+		me.gl.texImage2D(
+			me.gl.TEXTURE_2D, 0, me.gl.RGBA, me.gl.RGBA,
+			me.gl.UNSIGNED_BYTE,
+			loadResults.Images['floor']
+		);
+		me.gl.bindTexture(me.gl.TEXTURE_2D, null);
+
+		me.Textures.ceilingTexture = me.gl.createTexture();
+		me.gl.bindTexture(me.gl.TEXTURE_2D, me.Textures.ceilingTexture);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_WRAP_S, me.gl.CLAMP_TO_EDGE);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_WRAP_T, me.gl.CLAMP_TO_EDGE);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_MIN_FILTER, me.gl.LINEAR);
+		me.gl.texParameteri(me.gl.TEXTURE_2D, me.gl.TEXTURE_MAG_FILTER, me.gl.LINEAR);
+		me.gl.texImage2D(
+			me.gl.TEXTURE_2D, 0, me.gl.RGBA, me.gl.RGBA,
+			me.gl.UNSIGNED_BYTE,
+			loadResults.Images['ceiling']
+		);
+		me.gl.bindTexture(me.gl.TEXTURE_2D, null);
 
         // Imposta la posizione della point light nella scena
         //me.lightPosition = vec3.fromValues(3, 1,0); rimosso perche ora la posizione della point light viene presa dall'html ->impostata a (0,0,0) di default
@@ -165,19 +228,18 @@ Dungeon1Scene.prototype.Load = function (cb) {
 			emitColor: me.gl.getUniformLocation(me.Program, 'emitColor'),
 			diffuseColor: me.gl.getUniformLocation(me.Program, 'diffuseColor'),
 
-				// tipi 
+			// tipi 
 			ambientType: me.gl.getUniformLocation(me.Program, 'ambientType'),
 			diffuseType: me.gl.getUniformLocation(me.Program, 'diffuseType'),
 			specularType: me.gl.getUniformLocation(me.Program, 'specularType'),
 			emissionType: me.gl.getUniformLocation(me.Program, 'emissionType'),
-
-
 
 			meshColor: me.gl.getUniformLocation(me.Program, 'meshColor')
 		};
 		me.Program.attribs = {
 			vPos: me.gl.getAttribLocation(me.Program, 'vPos'),
 			vNorm: me.gl.getAttribLocation(me.Program, 'vNorm'),
+			vTexCoord: me.gl.getAttribLocation(me.Program, 'vTexCoord')
 		};
 
 		// Crea la telecamera sull asse positivo delle Z che guarda l'origine
@@ -361,8 +423,8 @@ Dungeon1Scene.prototype.Begin = function () {
         dt = currentFrameTime - previousFrame;
         
         // Fai l'update di telecamera, modelli ecc..
-        me._Update(dt);
-        
+		me._Update(dt);
+		
         // Il frame corrente diventa vecchio
 		previousFrame = currentFrameTime;
 
@@ -482,7 +544,7 @@ Dungeon1Scene.prototype._Update = function (dt) {
 	// Se premiamo avanti e non ci sono muri, vai avanti di uno step
 	else if (this.PressedKeys.Forward){
 		var target = this.GetTargetCell(false);
-		if (occupation[target.Y][target.X] == ' '){
+		if (occupation[target.Y][target.X] == ' ' || wallHack){
 			//this.camera.moveForward(1);
 			me.Cell = target;
 			me.IsMoving = true;
@@ -501,7 +563,7 @@ Dungeon1Scene.prototype._Update = function (dt) {
 	// Se premiamo indietro e non ci sono muri, vai indietro di uno step
 	else if (this.PressedKeys.Back){
 		var target = this.GetTargetCell(true);
-		if (occupation[target.Y][target.X] == ' '){
+		if (occupation[target.Y][target.X] == ' ' || wallHack){
 			//this.camera.moveForward(-1);
 			me.Cell = target;
 			me.IsMoving = true;
@@ -602,13 +664,10 @@ Dungeon1Scene.prototype._Render = function () {
     // Ottieni una reference comoda per gl
     var gl = this.gl;
    
-//prendo i valori dalla pagina HTML e creo il vettore posizione point light
-   // var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
-  //	var Decay= document.getElementById("PLightDecay").value/5;
- //	var Target= document.getElementById("PLightTarget").value/20;
-
-	
-
+	// prendo i valori dalla pagina HTML e creo il vettore posizione point light
+   	// var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
+  	// var Decay= document.getElementById("PLightDecay").value/5;
+ 	// var Target= document.getElementById("PLightTarget").value/20;
 
     // Abilita backface culling e zorder
 	gl.enable(gl.CULL_FACE);
@@ -631,7 +690,7 @@ Dungeon1Scene.prototype._Render = function () {
 	gl.uniformMatrix4fv(this.Program.uniforms.mProj, gl.FALSE, this.projMatrix);
     gl.uniformMatrix4fv(this.Program.uniforms.mView, gl.FALSE, this.viewMatrix);
 	//gl.uniform1f(this.Program.uniforms.PLightDecay,Decay );
-this.SetShader();
+	this.SetShader();
     //ogni ciclo di render passo allo shader i nuovi valori di posizione decay e target
 	//gl.uniform1f(this.Program.uniforms.PLightTarget,Target );
 
@@ -642,7 +701,7 @@ this.SetShader();
 		gl.uniformMatrix4fv(
 			this.Program.uniforms.mWorld,
 			gl.FALSE,
-		this.Meshes[i].world	);
+			this.Meshes[i].world);
 		gl.uniform4fv(
 			this.Program.uniforms.meshColor,
 			this.Meshes[i].color
@@ -666,7 +725,35 @@ this.SetShader();
 		);
 		gl.enableVertexAttribArray(this.Program.attribs.vNorm);		
 
+		// Riempi il buffer delle texture
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.Meshes[i].uvbo);
+		gl.vertexAttribPointer(
+			this.Program.attribs.vTexCoord,
+			2, gl.FLOAT, gl.FALSE,
+			2 * Float32Array.BYTES_PER_ELEMENT, 0
+		);
+		gl.enableVertexAttribArray(this.Program.attribs.vTexCoord);
+
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+		// Binda la texture
+		switch(this.Meshes[i].name){
+			case 'WallW':
+			case 'WallN':
+			case 'WallS':
+			case 'WallE':
+				gl.bindTexture(gl.TEXTURE_2D, this.Textures.wallTexture);
+				break;
+
+			case 'Floor':
+				gl.bindTexture(gl.TEXTURE_2D, this.Textures.floorTexture);
+				break;
+
+			case 'Ceiling':
+				gl.bindTexture(gl.TEXTURE_2D, this.Textures.ceilingTexture);
+				break;
+		}
+		gl.activeTexture(gl.TEXTURE0);
 
         // Riempi il buffer degli indici
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.Meshes[i].ibo);
