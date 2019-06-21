@@ -6,76 +6,84 @@
 </head>
 <body>
 
-    <div id="controls" class="hidden">
-        <p>Forward: W/↑</p>
-        <p>Back: S/↓</p>
-        <p>Right: D/→</p>
-        <p>Forward: A/←</p>
-    </div>
+<!-- CONTROLS -->
+<div id="controls" class="hidden">
+    <p>Forward: W / Up Arrow</p>
+    <p>Back: S / Down Arrow</p>
+    <p>Right: D / Right Arrow</p>
+    <p>Left: A / Left Arrow</p>
+    <p>Interact: F</p>
+    <p>WallHack: H</p>
+</div>
 
-    <div id="menu">
-        <button onclick="Init(0);">DEBUG</button>
-        <br />
-        <button onclick="Init(1);">PLAY</button>
-    </div>
+<!-- MAIN MENU -->
+<div id="menu">
+    <button onclick="Init(document.getElementById('difficulty').value, document.getElementById('debugMode').checked);">PLAY</button>
+    <p>Difficulty:</p>
+    <input type="number" id="difficulty" min="1" max="3" value="1" />
+    <p>Debug Mode:</p>
+    <input type="checkbox" id="debugMode" />
+</div>
 
-    <canvas class="hidden" id="gl-surface" >
-      Your browser does not support HTML5.
-  </canvas>
+<!-- WEBGL CANVAS -->
+<canvas class="hidden" id="gl-surface" >
+    Your browser does not support HTML5.
+</canvas>
 
 
-  <!--Contenitore per modificare luci e effetti-->
-
-  <div id="contenitore">
+<!-- Contenitore per modificare luci ed effetti -->
+<div id="contenitore">
     <div id="showMenu" onclick='show()'>CLOSE</div>
     <div id="allMenus" style="display:none">
+
+        <!-- POINT LIGHT -->
         <div id="PointLight" class="Comp"> 
 
-                   <!--qui si puo cambiare il target e il decay... sul target ci siamo, sul decay non capisco perche lui usa dei valori tipo 0,1,2 mentre a me produce un effetto sensato solo con valori tra 0 e 1 circa-->
-           <p>Decay     Target</p>
-           <input type="range" min="0" max="2" id="PLightDecay" >
-           <input type="range" min="1" max="10" id="PLightTarget">
+            <!-- DECAY TARGET -->
+            <!-- Qui si puo cambiare il target e il decay... sul target ci siamo, sul decay non capisco perche lui usa dei valori tipo 0,1,2 mentre a me produce un effetto sensato solo con valori tra 0 e 1 circa-->
+            <p>Decay     Target<p>
+            <input type="range" min="0" max="2" id="PLightDecay" />
+            <input type="range" min="1" max="10" id="PLightTarget" />
         </div>
-    
-    <div id="Diffuse" class="Comp"> 
-         <p>Select diffuse type</p>
 
-         <select id = "DiffuseType">
-             <option value = "Lambert">Lambert</option>
-             <option value = "Toon">Toon</option>
+        <div id="Diffuse" class="Comp"> 
 
-         </select>
-         <p>Select specular reflection type</p>
-         <select id = "SpecularType">
+            <!-- DIFFUSE TYPE -->
+            <p>Select diffuse type</p>
+            <select id = "DiffuseType">
+                <option value = "Lambert">Lambert</option>
+                <option value = "Toon">Toon</option>
+            </select>
 
-             <option value = "Phong">Phong</option>
-             <option value = "Blinn">Blinn</option>
-         </select>
+            <!-- SPECULAR TYPE -->
+            <p>Select specular reflection type</p>
+            <select id = "SpecularType">
+                <option value = "Phong">Phong</option>
+                <option value = "Blinn">Blinn</option>
+            </select>
+            <p>Select Ambient type</p>
 
-         <p>Select Ambient type</p>
-         <select id = "AmbientType">
+            <!-- AMBIENT TYPE -->
+            <select id = "AmbientType">
+                <option value = "Ambient">Ambient</option>
+                <option value = "Hemisheric">Hemisheric</option>
+            </select>
+        </div>
 
-             <option value = "Ambient">Ambient</option>
-             <option value = "Hemisheric">Hemisheric</option>
-         </select>
-</div> 
-<div id="colors" class="Comp">
-Point
-<input type="color" id="pointLightColor" value="#222222">
-
-ambient
-<input type="color" id="ambientLightColor" value="#222222">
-diffuse
-<input type="color" id="diffuseLightColor" value="#222222">
-emit
-<input type="color" id="emitLightColor" value="#222222">
-
+        <!-- LIGHT COLORS -->
+        <div id="colors" class="Comp">
+            Point
+            <input type="color" id="pointLightColor" value="#222222">
+            ambient
+            <input type="color" id="ambientLightColor" value="#222222">
+            diffuse
+            <input type="color" id="diffuseLightColor" value="#222222">
+            emit
+            <input type="color" id="emitLightColor" value="#222222">
+        </div>
     </div>
-     </div>
- </div>  
+</div>  
 
-
-</div>
 <!-- Carica le librerie di terze parti -->
 <script src="lib/dist/async.js"></script>
 <script src="lib/dist/gl-matrix.js"></script>
@@ -86,28 +94,36 @@ emit
 <!-- Carica la libreria di utility per caricare gli asset -->
 <script src="lib/utils.js"></script>
 
-<!-- Carica le classi -->
-<script src="lib/Model.js"></script>
-<script src="lib/Camera.js"></script>
+<!-- Carica gli actors -->
+<script src="actors/Camera.js"></script>
+<script src="actors/Model.js"></script>
+<script src="actors/Door.js"></script>
+<script src="actors/DoorLever.js"></script>
+<script src="actors/DoorKey.js"></script>
+<script src="actors/Key.js"></script>
 
 <!-- Carica le scene -->
+<script src="scenes/DungeonScene.js"></script>
+<script src="scenes/Dungeon0Scene.js"></script>
 <script src="scenes/Dungeon1Scene.js"></script>
-<script src="scenes/TestScene.js"></script>
+<script src="scenes/Dungeon2Scene.js"></script>
+<script src="scenes/Dungeon3Scene.js"></script>
 
-
+<!-- Script per show / hide del menu delle luci -->
 <script>
 
-        //Lightning menu SHOW /HIDE
-        function show(){
+function show(){
 
-            var all= document.getElementById("allMenus");
-            if(all.style.display=="none"){
-                all.style.display="block";
-            }else{
-                all.style.display="none";
-            }
-            
-        }
-    </script>
+    var all= document.getElementById('allMenus');
+    if (all.style.display == 'none'){
+        all.style.display = 'block';
+    }
+    else {
+        all.style.display = 'none';
+    }
+}
+
+</script>
+
 </body>
 </html>

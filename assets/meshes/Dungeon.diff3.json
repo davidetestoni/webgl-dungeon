@@ -485,7 +485,7 @@
 	,"flags": 8
 	,"meshes": [
 		{
-			 "name": ""
+			 "name": "CopperKey"
 			,"materialindex": 6
 			,"primitivetypes": 4
 			,"vertices": [
@@ -17052,7 +17052,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "GoldKey"
 			,"materialindex": 5
 			,"primitivetypes": 4
 			,"vertices": [
@@ -33619,7 +33619,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Border"
 			,"materialindex": 0
 			,"primitivetypes": 4
 			,"vertices": [
@@ -39581,7 +39581,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "GoldKeyHole"
 			,"materialindex": 5
 			,"primitivetypes": 4
 			,"vertices": [
@@ -48808,7 +48808,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "CopperKeyHole"
 			,"materialindex": 6
 			,"primitivetypes": 4
 			,"vertices": [
@@ -58035,7 +58035,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Lever1"
 			,"materialindex": 4
 			,"primitivetypes": 4
 			,"vertices": [
@@ -68374,7 +68374,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Lever3"
 			,"materialindex": 4
 			,"primitivetypes": 4
 			,"vertices": [
@@ -78713,7 +78713,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Lever5"
 			,"materialindex": 4
 			,"primitivetypes": 4
 			,"vertices": [
@@ -89052,7 +89052,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Door5"
 			,"materialindex": 3
 			,"primitivetypes": 4
 			,"vertices": [
@@ -89470,7 +89470,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Door4"
 			,"materialindex": 3
 			,"primitivetypes": 4
 			,"vertices": [
@@ -89888,7 +89888,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Door3"
 			,"materialindex": 3
 			,"primitivetypes": 4
 			,"vertices": [
@@ -90306,7 +90306,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Door2"
 			,"materialindex": 3
 			,"primitivetypes": 4
 			,"vertices": [
@@ -90724,7 +90724,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Door1"
 			,"materialindex": 3
 			,"primitivetypes": 4
 			,"vertices": [
@@ -91142,7 +91142,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Floor"
 			,"materialindex": 1
 			,"primitivetypes": 4
 			,"vertices": [
@@ -102978,7 +102978,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallW"
 			,"materialindex": 2
 			,"primitivetypes": 4
 			,"vertices": [
@@ -108148,7 +108148,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallE"
 			,"materialindex": 2
 			,"primitivetypes": 4
 			,"vertices": [
@@ -113384,7 +113384,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallN"
 			,"materialindex": 2
 			,"primitivetypes": 4
 			,"vertices": [
@@ -119412,7 +119412,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallS"
 			,"materialindex": 2
 			,"primitivetypes": 4
 			,"vertices": [
@@ -125506,7 +125506,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Ceiling"
 			,"materialindex": 1
 			,"primitivetypes": 4
 			,"vertices": [

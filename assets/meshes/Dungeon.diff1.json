@@ -173,7 +173,7 @@
 	,"flags": 8
 	,"meshes": [
 		{
-			 "name": ""
+			 "name": "Floor"
 			,"materialindex": 0
 			,"primitivetypes": 4
 			,"vertices": [
@@ -12009,7 +12009,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallW"
 			,"materialindex": 1
 			,"primitivetypes": 4
 			,"vertices": [
@@ -17179,7 +17179,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallE"
 			,"materialindex": 1
 			,"primitivetypes": 4
 			,"vertices": [
@@ -22415,7 +22415,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallN"
 			,"materialindex": 1
 			,"primitivetypes": 4
 			,"vertices": [
@@ -28443,7 +28443,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "WallS"
 			,"materialindex": 1
 			,"primitivetypes": 4
 			,"vertices": [
@@ -34537,7 +34537,7 @@
 			]
 		}
 		,{
-			 "name": ""
+			 "name": "Ceiling"
 			,"materialindex": 0
 			,"primitivetypes": 4
 			,"vertices": [
