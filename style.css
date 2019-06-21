@@ -100,10 +100,43 @@ height: 10%;
     z-index: 2;
 }
 
+#minimap {
+    position: absolute;
+    top: 1%;
+    left: 70%;
+    color: white;
+    background-color: black;
+    opacity: 0.5;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 2;
+}
+
+#minimap table {
+    table-layout:fixed;
+    width: 240px;
+    height: 240px;
+    border: 0px;
+}
+
+#minimap table tbody tr td {
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+}
+
 #menu {
     position:fixed;
     top:40%;
     left:46%;
     display:block;
     text-align: center;
+}
+
+.marker {
+    height: 6px;
+    width: 6px;
+    margin: 2px;
+    background-color: orangered;
+    border-radius: 50%;
 }

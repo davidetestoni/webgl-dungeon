@@ -86,6 +86,8 @@ class DungeonScene {
             X: 6,
             Y: 9
         }
+        PlaceMinimapMarker(9, 6);
+        ColorMinimapCell(9, 6, 'white');
 
         // Settiamo la direzione iniziale
         this.Direction = "right";
@@ -630,6 +632,10 @@ class DungeonScene {
 
                 setTimeout(function() {me.IsMoving = false; me.performFinalMovement(1); }, me.MoveDelay); // Sblocca i comandi finito il movimento
 
+                // Aggiorniamo la minimappa
+                ColorMinimapCell(target.Y, target.X, 'white');
+                PlaceMinimapMarker(target.Y, target.X);
+
                 // Inoltre se nella cella target c'è una chiave, interagiamo con essa
                 if (this.isKey(target.Y, target.X)){
                     this.interact(target.Y, target.X);
@@ -653,6 +659,10 @@ class DungeonScene {
                 }
 
                 setTimeout(function() { me.IsMoving = false; me.performFinalMovement(-1); }, me.MoveDelay); // Sblocca i comandi finito il movimento
+
+                // Aggiorniamo la minimappa
+                ColorMinimapCell(target.Y, target.X, 'white');
+                PlaceMinimapMarker(target.Y, target.X);
 
                 // Inoltre se nella cella target c'è una chiave, interagiamo con essa
                 if (this.isKey(target.Y, target.X)){

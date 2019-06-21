@@ -22,6 +22,8 @@ function Init(difficulty, debugMode) {
 	for (var i = 0; i < items.length; i++){
 		items[i].classList.add('hidden');
 	}
+
+	ResetMinimap();
 	
 	var gl = canvas.getContext('webgl');
 	
@@ -76,4 +78,48 @@ function Init(difficulty, debugMode) {
 			}
 		});
 	}
+}
+
+// Ridisegna la minimappa con tutte le celle nere
+function ResetMinimap() {
+	var minimap = document.getElementById('minimap');
+	minimap.removeChild(minimap.firstChild);
+	
+	var table = document.createElement('table');
+	var tbody = document.createElement('tbody');
+	for (var i = 0; i < 24; i++) {
+		var tr = document.createElement('tr');
+		for (var j = 0; j < 24; j++) {
+			var td = document.createElement('td');
+			td.style.background = '#222';
+			tr.appendChild(td);
+		}
+		tbody.appendChild(tr);
+	}
+	table.appendChild(tbody);
+	minimap.appendChild(table);
+}
+
+function ColorMinimapCell(y, x, color) {
+
+	var cell = document.querySelector(`#minimap table tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`);
+	cell.style.background = color;
+}
+
+function PlaceMinimapMarker(y, x) {
+
+	// Rimuovi marker precedenti
+	var cells = document.querySelectorAll('#minimap table tbody tr td');
+	for (var i = 0; i < cells.length; i++){
+		var cell = cells[i];
+		if (cell.firstChild) cell.removeChild(cell.firstChild);
+	}
+
+	// Crea il div marker
+	var marker = document.createElement('div');
+	marker.classList.add('marker');
+	
+	// Ottieni la cella corretta e aggiungi il marker
+	var cell = document.querySelector(`#minimap table tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`);
+	cell.appendChild(marker);
 }
