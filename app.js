@@ -7,12 +7,21 @@ var Dungeon;
 // Initializza webgl e carica la scena
 function Init(difficulty, debugMode) {
 	
-	// Nascondi il menu e mostra canvas + HUD
-	var canvas = document.getElementById('gl-surface');
-	canvas.classList.remove('hidden');
+	// Nascondi il menu
 	document.getElementById('menu').classList.add('hidden');
-	document.getElementById('controls').classList.remove('hidden');
-	document.getElementById('contenitore').classList.remove('hidden');
+
+	// Mostra canvas e HUD
+	var canvas = document.getElementById('gl-surface');
+	var hudElems = document.getElementsByClassName('hud');
+	for (var i = 0; i < hudElems.length; i++){
+		hudElems[i].classList.remove('hidden');
+	}
+
+	// Nascondi tutte le immagini degli item
+	var items = document.querySelector('#items img');
+	for (var i = 0; i < items.length; i++){
+		items[i].classList.add('hidden');
+	}
 	
 	var gl = canvas.getContext('webgl');
 	

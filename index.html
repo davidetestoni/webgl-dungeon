@@ -7,13 +7,26 @@
 <body>
 
 <!-- CONTROLS -->
-<div id="controls" class="hidden">
+<div id="controls" class="hidden hud">
+    <p><b>CONTROLS</b></p>
     <p>Forward: W / Up Arrow</p>
     <p>Back: S / Down Arrow</p>
     <p>Right: D / Right Arrow</p>
     <p>Left: A / Left Arrow</p>
     <p>Interact: F</p>
     <p>WallHack: H</p>
+</div>
+
+<!-- MINIMAP -->
+<div id="minimap" class="hidden hud">
+    
+</div>
+
+<!-- ITEMS -->
+<div id="items" class="hidden hud">
+    <p><b>ITEMS</b></p>
+    <p><img id="copperKey" class="hidden" src="assets/textures/copperKey.png"></p>
+    <p><img id="goldKey" class="hidden" src="assets/textures/goldKey.png"></p>
 </div>
 
 <!-- MAIN MENU -->
@@ -26,13 +39,13 @@
 </div>
 
 <!-- WEBGL CANVAS -->
-<canvas class="hidden" id="gl-surface" >
+<canvas class="hidden hud" id="gl-surface" >
     Your browser does not support HTML5.
 </canvas>
 
 
 <!-- Contenitore per modificare luci ed effetti -->
-<div id="contenitore">
+<div id="contenitore" class="hidden hud">
     <div id="showMenu" onclick='show()'>CLOSE</div>
     <div id="allMenus" style="display:none">
 

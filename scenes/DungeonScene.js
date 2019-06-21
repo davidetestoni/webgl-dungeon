@@ -617,7 +617,7 @@ class DungeonScene {
         else if (this.PressedKeys.Forward){
             var target = this.getTargetCell(false);
             if (this.canMove(target.Y, target.X)){
-                //this.Camera.moveForward(1);
+                
                 me.Cell = target;
                 me.IsMoving = true;
                 
@@ -629,6 +629,11 @@ class DungeonScene {
                 }
 
                 setTimeout(function() {me.IsMoving = false; me.performFinalMovement(1); }, me.MoveDelay); // Sblocca i comandi finito il movimento
+
+                // Inoltre se nella cella target c'è una chiave, interagiamo con essa
+                if (this.isKey(target.Y, target.X)){
+                    this.interact(target.Y, target.X);
+                }
             }
         }
 
@@ -636,7 +641,7 @@ class DungeonScene {
         else if (this.PressedKeys.Back){
             var target = this.getTargetCell(true);
             if (this.canMove(target.Y, target.X)){
-                //this.Camera.moveForward(-1);
+                
                 me.Cell = target;
                 me.IsMoving = true;
                 
@@ -648,6 +653,11 @@ class DungeonScene {
                 }
 
                 setTimeout(function() { me.IsMoving = false; me.performFinalMovement(-1); }, me.MoveDelay); // Sblocca i comandi finito il movimento
+
+                // Inoltre se nella cella target c'è una chiave, interagiamo con essa
+                if (this.isKey(target.Y, target.X)){
+                    this.interact(target.Y, target.X);
+                }
             }
         }
 
@@ -719,7 +729,7 @@ class DungeonScene {
     canMove(y, x){
 
         if (this.isClosedDoor(y, x)){
-            return false;
+            return this.wallHack;
         }
         else{
             return this.occupation[y][x] == ' ' || this.wallHack;
@@ -740,6 +750,66 @@ class DungeonScene {
                 }
             }
         }
+        else if (this.isDoorKey(y, x)){
+
+            // Cicla sulle porte
+            for (var i = 0; i < this.Doors.length; i++){
+                var door = this.Doors[i];
+    
+                // Se è questa la porta in posizione y x
+                if (door.y == y && door.x == x){
+
+                    // Se abbiamo la chiave giusta
+                    if (this.MyKeys.includes(door.keyType)){
+                        door.open();
+                    }
+                }
+            }
+        }
+        else if (this.isKey(y, x)){
+
+            // Cicla sulle chiavi
+            for (var i = 0; i < this.Keys.length; i++){
+                var key = this.Keys[i];
+
+                // Se è questa la chiave in posizione y x
+                if (key.y == y && key.x == x){
+
+                    this.MyKeys.push(key.type);
+                    document.getElementById(key.type + 'Key').classList.remove('hidden');
+                }
+            }
+        }
+    }
+
+    isKey(y, x){
+        if (!this.Keys) return false;
+
+        for (var i = 0; i < this.Keys.length; i++){
+            var key = this.Keys[i];
+
+            // Se abbiamo di fronte una chiave
+            if (key.y == y && key.x == x){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    isDoorKey(y, x){
+        if (!this.Doors) return false;
+
+        for (var i = 0; i < this.Doors.length; i++){
+            var door = this.Doors[i];
+
+            // Se abbiamo di fronte una porta di tipo DoorKey e non è ancora aperta
+            if (door.constructor.name == 'DoorKey' && door.y == y && door.x == x && door.status != 'open'){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     isClosedDoor(y, x){
@@ -836,14 +906,27 @@ class DungeonScene {
                     var door = this.Doors[j];
 
                     // Se la porta si sta aprendo o c'è qualche elevazione rimasta da processare
-                    if (door.status === 'opening' || door.toElevate > 0){
+                    if (door.name === mesh.name && (door.status === 'opening' || door.toElevate > 0)){
 
+                        console.log(mesh);
+                        console.log(door);
                         // Trasla la world matrix dell'oggetto sulle y
                         mat4.translate(mesh.world, mesh.world, vec3.fromValues(0, door.toElevate, 0));
 
                         // Non c'è più nulla di rimasto da elevare
                         door.toElevate = 0;
                     }
+                }
+            }
+
+            // Se la mesh è una chiave ma è già stata raccolta
+            if (mesh.name.includes('Key')){
+
+                // Se le mie chiavi contengono il nome della mesh senza Key
+                if (this.MyKeys.includes(mesh.name.replace('Key', '').toLowerCase())){
+
+                    // Non fare nulla
+                    continue;
                 }
             }
 
@@ -933,8 +1016,6 @@ class DungeonScene {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.ibo);
             gl.drawElements(gl.TRIANGLES, mesh.nPoints, gl.UNSIGNED_SHORT, 0);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-            console.log(this.Cell);
         }
     }
 

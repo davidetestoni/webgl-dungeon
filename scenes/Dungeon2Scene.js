@@ -9,7 +9,7 @@ Cell (Y X)
 13 18 Door4
 7 10 Door5
 
-11 8 Lever1
+11 9 Lever1
 12 14 Lever3
 7 9 Lever5
 
@@ -26,10 +26,11 @@ class Dungeon2Scene extends DungeonScene {
 		super(gl);
 
 		this.Doors = [
-			new DoorLever('Door1', 12, 10, 11, 8),
+			new DoorLever('Door1', 12, 10, 11, 9),
 			new DoorLever('Door3', 12, 15, 12, 14),
 			new DoorLever('Door5', 7, 10, 7, 9)
 		];
+
 
 	}
 
