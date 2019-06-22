@@ -49,15 +49,7 @@
     <div id="showMenu" onclick='show()'>CLOSE</div>
     <div id="allMenus" style="display:none">
 
-        <!-- POINT LIGHT -->
-        <div id="PointLight" class="Comp"> 
-
-            <!-- DECAY TARGET -->
-            <!-- Qui si puo cambiare il target e il decay... sul target ci siamo, sul decay non capisco perche lui usa dei valori tipo 0,1,2 mentre a me produce un effetto sensato solo con valori tra 0 e 1 circa-->
-            <p>Decay     Target<p>
-            <input type="range" min="0" max="2" id="PLightDecay" />
-            <input type="range" min="1" max="10" id="PLightTarget" />
-        </div>
+       
 
         <div id="Diffuse" class="Comp"> 
 
@@ -66,11 +58,14 @@
             <select id = "DiffuseType">
                 <option value = "Lambert">Lambert</option>
                 <option value = "Toon">Toon</option>
+                <option value = "None">None</option>
+
             </select>
 
             <!-- SPECULAR TYPE -->
             <p>Select specular reflection type</p>
             <select id = "SpecularType">
+                <option value = "None">None</option>
                 <option value = "Phong">Phong</option>
                 <option value = "Blinn">Blinn</option>
             </select>
@@ -78,21 +73,51 @@
 
             <!-- AMBIENT TYPE -->
             <select id = "AmbientType">
+                <option value = "None">None</option>
                 <option value = "Ambient">Ambient</option>
-                <option value = "Hemisheric">Hemisheric</option>
+                <option value = "Hemispheric">Hemispheric</option>
+            </select>
+            <p>Select Light type</p>
+
+            <select id = "LightType">
+                <option value = "None">None</option>
+                <option value = "OnlyDirectional">OnlyDirectional</option>
+                <option value = "OnlyPoint">OnlyPoint</option>
+                <option value = "PointPlusDir">PointPlusDir</option>
             </select>
         </div>
+ <!-- POINT LIGHT -->
+        <div id="PointLight" class="Comp"> 
 
+            <!-- DECAY TARGET -->
+            <!-- Qui si puo cambiare il target e il decay... sul target ci siamo, sul decay non capisco perche lui usa dei valori tipo 0,1,2 mentre a me produce un effetto sensato solo con valori tra 0 e 1 circa-->
+            <p>Decay point light    Target point light<p>
+            <input type="range" min="0" max="2" id="PLightDecay" />
+            <input type="range" min="1" max="10" id="PLightTarget" />
+            <input type="range" min="1" max="180" id="directionalLightDirAlpha" />
+            <input type="range" min="1" max="180" id="directionalLightDirBeta" />
+
+
+        </div>
         <!-- LIGHT COLORS -->
         <div id="colors" class="Comp">
             Point
             <input type="color" id="pointLightColor" value="#222222">
             ambient
             <input type="color" id="ambientLightColor" value="#222222">
+            ambient LOW
+            <input type="color" id="ambientLightLowColor" value="#222222">
+             ambient mat color
+            <input type="color" id="ambientMatColor" value="#222222">
+            
             diffuse
             <input type="color" id="diffuseLightColor" value="#222222">
             emit
             <input type="color" id="emitLightColor" value="#222222">
+            specular
+            <input type="color" id="specularLightColor" value="#222222">
+            Directional
+            <input type="color" id="directionalLightColor" value="#222222">
         </div>
     </div>
 </div>  

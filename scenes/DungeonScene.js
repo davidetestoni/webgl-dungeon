@@ -45,20 +45,35 @@ class DungeonScene {
         this.wallHack = false;
         
         this.Lights= {
+            
+            //lantern parameters
             pointLightPosition: [0,0,0],
             PLightDecay: 2,
             PLightTarget: 3,
             PLColor: [1.0,0.0,0.0,1.0],
+
+            //directional parameters
+            directionalLightColor: [1.0,0.0,1.0,1.0],
+            directionalLightDir: [45,45],
+
+
+            // effect colors
             ambientLightColor: [1.0,0.0,1.0,1.0],
             ambientLightLowColor: [1.0,1.0,0.0,1.0],
+            ambientMatColor: [0.0,0.1,0.0,1.0],
             diffuseColor: [0.8,1.0,1.0,0.0],
             specularColor: [1.0,1.0,1.0,1.0],
-            SpecShine: 100,
-            //DToonTh,
-            //SToonTh,
-            ambientMatColor: [0.0,0.1,0.0,1.0],
             emitColor: [0.1,0.0,0.0,1.0],
-            ambientType: [1.0],
+
+            //others
+            SpecShine: 100,
+            DToonTh:90,
+            SToonTh :50,
+            
+
+            //types
+            lightType:  [1,1],
+            ambientType: [1,0],
             diffuseType: [1,0],
             specularType: [1,0],
             emissionType: [1,0]
@@ -71,6 +86,20 @@ class DungeonScene {
         document.getElementById('pointLightColor').value = colorToHex(this.Lights.PLColor);
         document.getElementById('emitLightColor').value = colorToHex(this.Lights.emitColor);
         document.getElementById('ambientLightColor').value = colorToHex(this.Lights.ambientLightColor);
+                document.getElementById('ambientLightLowColor').value = colorToHex(this.Lights.ambientLightLowColor);
+                document.getElementById('ambientMatColor').value = colorToHex(this.Lights.ambientMatColor);
+        document.getElementById('specularLightColor').value = colorToHex(this.Lights.specularColor);
+        document.getElementById('directionalLightColor').value = colorToHex(this.Lights.directionalLightColor);
+        document.getElementById('directionalLightDirAlpha').value = this.Lights.directionalLightDir[0];
+        document.getElementById('directionalLightDirBeta').value = this.Lights.directionalLightDir[1];
+
+
+                //questi li setto a mano per comodità
+                document.getElementById('AmbientType').value = "Ambient";
+                document.getElementById('DiffuseType').value = "Lambert";
+                document.getElementById('SpecularType').value = "Phong";
+                document.getElementById('LightType').value = "PointPlusDir";
+
 
         this.PressedKeys = {
             Forward: false,
@@ -353,21 +382,31 @@ class DungeonScene {
                 PLightDecay: me.gl.getUniformLocation(me.Program, 'PLightDecay'),
                 PLightTarget: me.gl.getUniformLocation(me.Program, 'PLightTarget'),
                 pointLightPosition: me.gl.getUniformLocation(me.Program, 'pointLightPosition'),
-
                 PLColor: me.gl.getUniformLocation(me.Program, 'PLColor'),
+
+                    //dir light
+                directionalLightColor: me.gl.getUniformLocation(me.Program, 'directionalLightColor'),
+                directionalLightDir: me.gl.getUniformLocation(me.Program, 'directionalLightDir'),
+
+
                 ambientLightColor: me.gl.getUniformLocation(me.Program, 'ambientLightColor'),
                 ambientLightLowColor: me.gl.getUniformLocation(me.Program, 'ambientLightLowColor'),
                 specularColor: me.gl.getUniformLocation(me.Program, 'specularColor'),
-                SpecShine: me.gl.getUniformLocation(me.Program, 'SpecShine'),
                 ambientMatColor: me.gl.getUniformLocation(me.Program, 'ambientMatColor'),
                 emitColor: me.gl.getUniformLocation(me.Program, 'emitColor'),
                 diffuseColor: me.gl.getUniformLocation(me.Program, 'diffuseColor'),
+
+
+                SpecShine: me.gl.getUniformLocation(me.Program, 'SpecShine'),
+                DToonTH: me.gl.getUniformLocation(me.Program, 'DToonTH'),
+                SToonTh: me.gl.getUniformLocation(me.Program, 'SToonTh'),
 
                 // Tipi
                 ambientType: me.gl.getUniformLocation(me.Program, 'ambientType'),
                 diffuseType: me.gl.getUniformLocation(me.Program, 'diffuseType'),
                 specularType: me.gl.getUniformLocation(me.Program, 'specularType'),
                 emissionType: me.gl.getUniformLocation(me.Program, 'emissionType'),
+                 lightType: me.gl.getUniformLocation(me.Program, 'lightType'),
 
                 meshColor: me.gl.getUniformLocation(me.Program, 'meshColor')
             };
@@ -404,24 +443,33 @@ class DungeonScene {
 
     initializeShader(cb) {
 	
+            var alpha= this.Lights.directionalLightDir[0]*Math.PI/180;
+            var beta= this.Lights.directionalLightDir[1]*Math.PI/180;
         var gl= this.gl;
         gl.useProgram(this.Program);
-    
+
+        gl.uniform3fv(this.Program.uniforms.pointLightPosition, this.Camera.position);
         gl.uniform1f(this.Program.uniforms.PLightDecay, this.Lights.PLightDecay);
         gl.uniform1f(this.Program.uniforms.PLightTarget, this.Lights.PLightTarget);
+        gl.uniform4fv(this.Program.uniforms.PLColor, this.Lights.PLColor);
+
+        gl.uniform4fv(this.Program.uniforms.directionalLightColor, this.Lights.directionalLightColor);
+        gl.uniform3fv(this.Program.uniforms.directionalLightDir,[Math.sin(alpha)*Math.sin(beta), Math.cos(alpha), Math.sin(alpha)*Math.cos(beta)]);
+
+
         gl.uniform1f(this.Program.uniforms.SpecShine, this.Lights.SpecShine);
     
+
         gl.uniform4fv(this.Program.uniforms.ambientLightColor, this.Lights.ambientLightColor);
         gl.uniform4fv(this.Program.uniforms.ambientLightLowColor, this.Lights.ambientLightLowColor);
         gl.uniform4fv(this.Program.uniforms.specularColor, this.Lights.specularColor);
         gl.uniform4fv(this.Program.uniforms.ambientMatColor, this.Lights.ambientMatColor);
-        // gl.uniform4fv(this.Program.uniforms.emitColor, this.Lights.emitColor);
-        gl.uniform4fv(this.Program.uniforms.PLColor, this.Lights.PLColor);
+        gl.uniform4fv(this.Program.uniforms.emitColor, this.Lights.emitColor);
         gl.uniform4fv(this.Program.uniforms.diffuseColor, this.Lights.diffuseColor);
         gl.uniform4fv(this.Program.uniforms.emitColor, this.Lights.emitColor);
     
-        gl.uniform3fv(this.Program.uniforms.pointLightPosition, this.Camera.position);
-    
+
+        gl.uniform2fv(this.Program.uniforms.lightType, this.Lights.lightType);
         gl.uniform2fv(this.Program.uniforms.ambientType, this.Lights.ambientType);
         gl.uniform2fv(this.Program.uniforms.diffuseType, this.Lights.diffuseType);
         gl.uniform2fv(this.Program.uniforms.specularType, this.Lights.specularType);
@@ -434,32 +482,74 @@ class DungeonScene {
         this.Lights.PLightDecay = document.getElementById('PLightDecay').value;
         this.Lights.PLightTarget = document.getElementById('PLightTarget').value;
         this.Lights.PLColor = colorToRGB(document.getElementById('pointLightColor').value);
+
+        this.Lights.directionalLightColor = colorToRGB(document.getElementById('directionalLightColor').value);
+        this.Lights.directionalLightDir[0] = document.getElementById('directionalLightDirAlpha').value;
+        this.Lights.directionalLightDir[1] = document.getElementById('directionalLightDirBeta').value;
+
+        this.Lights.ambientMatColor = colorToRGB(document.getElementById('ambientMatColor').value);
+        this.Lights.ambientLightLowColor = colorToRGB(document.getElementById('ambientLightLowColor').value);
         this.Lights.diffuseColor = colorToRGB(document.getElementById('diffuseLightColor').value);
         this.Lights.ambientLightColor = colorToRGB(document.getElementById('ambientLightColor').value);
         this.Lights.emitLightColor = colorToRGB(document.getElementById('emitLightColor').value);
-    
+        this.Lights.specularColor = colorToRGB(document.getElementById('specularLightColor').value);
+
         // Tipo di diffusione
         if (document.getElementById('DiffuseType').value == 'Lambert'){
             this.Lights.diffuseType= [1,0]; // Lambert
         }
-        else{
+        else{if(document.getElementById('DiffuseType').value == 'Toon'){
             this.Lights.diffuseType= [0,1]; // Toon
+        }else{
+            this.Lights.diffuseType=[0,0];
+        }
         }
 
         // Tipo di luce speculare
         if (document.getElementById('SpecularType').value == 'Phong'){
             this.Lights.specularType= [1,0]; // Phong
         }
-        else{
+        else{if(document.getElementById('SpecularType').value == 'Blinn'){
+
             this.Lights.specularType= [0,1]; // Blinn
+        }
+        else{
+                        this.Lights.specularType= [0,0]; // none
+
+        }
         }
 
         // Tipo di ambient light
         if(document.getElementById('AmbientType').value == 'Ambient'){
             this.Lights.ambientType= [1,0];
         }
-        else{
+        else{if(document.getElementById('AmbientType').value == 'Hemispheric'){
+
             this.Lights.ambientType= [0,1];
+        }
+        else{
+                        this.Lights.ambientType= [0,0];
+
+        }
+        }
+
+
+        // Tipo di  light
+
+        if(document.getElementById('LightType').value == 'OnlyPoint'){
+            this.Lights.lightType= [1,0];
+        }
+        else{if(document.getElementById('LightType').value == 'PointPlusDir'){
+
+            this.Lights.lightType= [1,1];
+        }
+        else{if(document.getElementById('LightType').value == 'OnlyDirectional'){
+                                        this.Lights.lightType= [0,1];
+
+        }else{
+                        this.Lights.lightType= [0,0];
+        }
+        }
         }
     }
 

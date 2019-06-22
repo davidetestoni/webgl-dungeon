@@ -5,21 +5,33 @@ uniform vec2 ambientType;
 uniform vec2 diffuseType;
 uniform vec2 specularType;
 uniform vec2 emissionType;
+uniform vec2 lightType;
 
+//point light param
 uniform vec4 PLColor;
 uniform vec3 pointLightPosition; // Per ora qui dentro c'è un vettore con tre elementi che indicano la posizione della point light
 uniform float PLightDecay; // Il decay della point light
 uniform float PLightTarget; // Il target della point light
-uniform vec4 ambientLightColor;
-uniform vec4 ambientLightLowColor;
-uniform vec3 ADir;
-uniform vec4 diffuseColor;
+
+//directional light
+uniform vec4 directionalLightColor;
+uniform vec3 directionalLightDir;
 
 uniform vec4 specularColor;
-uniform float SpecShine;
+uniform vec4 ambientLightColor;
 uniform vec4 ambientMatColor;
+uniform vec4 ambientLightLowColor;
+uniform vec4 diffuseColor;
 uniform vec4 emitColor;
+
 uniform vec4 meshColor;
+
+uniform vec3 ADir;
+
+uniform float SpecShine;
+uniform float DToonTh;
+uniform float SToonTh;
+
 
 uniform sampler2D sampler;
 
@@ -31,33 +43,78 @@ varying vec2 fTexCoord;
 void main()
 {
     // Calcolo la direzione e il colore della luce (point light) --> passaggio base
-    vec4 lightColor = PLColor * pow(PLightTarget / length(pointLightPosition - fPos), PLightDecay);
-    vec3 lightDir = normalize(pointLightPosition - fPos);
+    vec4 PointlightColor = PLColor * pow(PLightTarget / length(pointLightPosition - fPos), PLightDecay);
+    vec3 PointlightDir = normalize(pointLightPosition - fPos);
 
     // Calcolo direzione in cui viene guardato il pixel e l'halfvector
     // Eye position è la posizione della camera
     vec3 eyePos = pointLightPosition;
     vec3 eyedirVec = normalize(eyePos - fPos);
-    vec3 halfVec = normalize(lightDir + eyePos);
-    vec3 reflection = -reflect(lightDir, fNorm);
+    vec3 halfVecPoint = normalize(PointlightDir + eyePos);
+    vec3 reflectionPoint = -reflect(PointlightDir, fNorm);
+    vec3 halfVecDirectional = normalize(directionalLightDir + eyePos);
+    vec3 reflectionDirectional = -reflect(directionalLightDir, fNorm);
     float amBlend = (dot(fNorm, vec3(0.0, 1.0, 0.0)) + 1.0) / 2.0;
 
     // Calcolo i vari tipi di effetti partendo dalla direzione e dal colore della luce
+
+
+
     // AmbientType è un vettore di zeri ed uni che indica quale tipo è stato scelto dalla GUI
     vec4 ambientAmbient = ambientLightColor * ambientMatColor;
     vec4 ambientHemi = (ambientLightColor * amBlend + ambientLightLowColor * (1.0 - amBlend)) * ambientMatColor;
     vec4 ambient = (ambientAmbient * ambientType.x) + (ambientHemi * ambientType.y);
 
-    vec4 specularPhong = lightColor * pow(max(dot(reflection, eyedirVec), 0.0), SpecShine) * specularColor;
-    vec4 specularBlinn = lightColor * pow(max(dot(fNorm, halfVec), 0.0), SpecShine) * specularColor;
-    vec4 specular = (specularPhong * specularType.x) + (specularBlinn * specularType.y);
 
-    vec4 lambert = lightColor * clamp(dot(fNorm, lightDir),0.0,1.0) * diffuseColor;
+
+
+    //calcolo phong per la point light
+    vec4 specularPhongPoint = PointlightColor * pow(max(dot(reflectionPoint, eyedirVec), 0.0), SpecShine) * specularColor;
+    vec4 specularBlinnPoint = PointlightColor * pow(max(dot(fNorm, halfVecPoint), 0.0), SpecShine) * specularColor;
+    vec4 specularPoint = (specularPhongPoint * specularType.x) + (specularBlinnPoint * specularType.y);
+
+        //calcolo blinn per la point light
+    vec4 specularPhongDirectional = directionalLightColor * pow(max(dot(reflectionDirectional, eyedirVec), 0.0), SpecShine) * specularColor;
+    vec4 specularBlinnDirectional = directionalLightColor * pow(max(dot(fNorm, halfVecDirectional), 0.0), SpecShine) * specularColor;
+       vec4 specularDirectional = (specularPhongDirectional * specularType.x) + (specularBlinnDirectional * specularType.y);
+
     
-    // Appena ho tempo qui aggiungo il TOON diffuse
+
+
+//calcolo lamber per il point
+    vec4 lambertPoint = PointlightColor * clamp(dot(fNorm, PointlightDir),0.0,1.0) * diffuseColor;
+    vec4 ToonColPoint;
+    if(dot(fNorm, PointlightDir) > DToonTh) {
+        ToonColPoint = diffuseColor;
+    } else {
+        ToonColPoint = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    vec4 toonPoint = PointlightColor * ToonColPoint;
+    vec4 diffusePoint= (lambertPoint*diffuseType.x) + (toonPoint*diffuseType.y);
+
+//calcolo lamber per la direzionale
+    vec4 lambertDirectional = directionalLightColor * clamp(dot(fNorm, directionalLightDir),0.0,1.0) * diffuseColor;
+
+vec4 ToonColDirectional;
+    if(dot(fNorm, directionalLightDir) > DToonTh) {
+        ToonColDirectional = diffuseColor;
+    } else {
+        ToonColDirectional = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    vec4 toonDirectional = directionalLightColor * ToonColDirectional;
+    vec4 diffuseDirectional= (lambertDirectional*diffuseType.x) + (toonDirectional*diffuseType.y);
+    
+
+
+
+
+//calcolo il diffuse finale
+    vec4  diffuse= (diffuseDirectional*lightType.y)+(diffusePoint*lightType.x);
+//calcolo lo specular finale
+    vec4 specular= (specularPoint*lightType.x) + (specularDirectional*lightType.y);
 
     // Sommo e clampo tutto
-    vec4 outColor = clamp (lambert + specular + ambient + emitColor, 0.0, 1.0);
+    vec4 outColor = clamp (diffuse + specular + ambient + emitColor, 0.0, 1.0);
 
     // Setta il colore di output
     gl_FragColor= texture2D(sampler, fTexCoord) * vec4(outColor.rgb, meshColor.a);
