@@ -86,20 +86,18 @@ class DungeonScene {
         document.getElementById('pointLightColor').value = colorToHex(this.Lights.PLColor);
         document.getElementById('emitLightColor').value = colorToHex(this.Lights.emitColor);
         document.getElementById('ambientLightColor').value = colorToHex(this.Lights.ambientLightColor);
-                document.getElementById('ambientLightLowColor').value = colorToHex(this.Lights.ambientLightLowColor);
-                document.getElementById('ambientMatColor').value = colorToHex(this.Lights.ambientMatColor);
+        document.getElementById('ambientLightLowColor').value = colorToHex(this.Lights.ambientLightLowColor);
+        document.getElementById('ambientMatColor').value = colorToHex(this.Lights.ambientMatColor);
         document.getElementById('specularLightColor').value = colorToHex(this.Lights.specularColor);
         document.getElementById('directionalLightColor').value = colorToHex(this.Lights.directionalLightColor);
         document.getElementById('directionalLightDirAlpha').value = this.Lights.directionalLightDir[0];
         document.getElementById('directionalLightDirBeta').value = this.Lights.directionalLightDir[1];
 
-
-                //questi li setto a mano per comodità
-                document.getElementById('AmbientType').value = "Ambient";
-                document.getElementById('DiffuseType').value = "Lambert";
-                document.getElementById('SpecularType').value = "Phong";
-                document.getElementById('LightType').value = "PointPlusDir";
-
+        //questi li setto a mano per comodità
+        document.getElementById('AmbientType').value = "Ambient";
+        document.getElementById('DiffuseType').value = "Lambert";
+        document.getElementById('SpecularType').value = "Phong";
+        document.getElementById('LightType').value = "PointPlusDir";
 
         this.PressedKeys = {
             Forward: false,
@@ -262,7 +260,7 @@ class DungeonScene {
         async.parallel({
             Models: function (callback) {
                 async.map({
-                    TestModel: 'assets/meshes/Dungeon.diff' + difficulty + '.json'
+                    DungeonModel: 'assets/meshes/Dungeon.diff' + difficulty + '.json'
                 }, LoadJSONResource, callback);
             },
             ShaderCode: function (callback) {
@@ -293,14 +291,26 @@ class DungeonScene {
             var baseColor = vec4.fromValues(0.5, 0.5, 0.5, 1.0);
 
             // Crea gli oggetti con le informazioni dei modelli
-            for (var i = 0; i < loadResults.Models.TestModel.meshes.length; i++) {
+            for (var i = 0; i < loadResults.Models.DungeonModel.meshes.length; i++) {
 
-                var mesh = loadResults.Models.TestModel.meshes[i];
+                var mesh = loadResults.Models.DungeonModel.meshes[i];
 
                 var texCoords = null;
                 if (mesh.texturecoords){
                     texCoords = mesh.texturecoords[0];
                 }
+
+                var mat = loadResults.Models.DungeonModel.materials[mesh.materialindex];
+
+                var material = {
+                    Name: mat.properties[0].value,
+                    ShadingMode: mat.properties[1].value,
+                    Ambient: mat.properties[2].value,
+                    Diffuse: mat.properties[3].value,
+                    Specular: mat.properties[4].value,
+                    Emissive: mat.properties[5].value,
+                    Shininess: mat.properties[6].value
+                };
 
                 // Crea l'oggetto
                 var model = new Model(
@@ -310,7 +320,8 @@ class DungeonScene {
                     [].concat.apply([], mesh.faces),
                     mesh.normals,
                     texCoords,
-                    baseColor
+                    baseColor,
+                    material
                 );
 
                 // Inserisci il modello nella lista di modelli della scena
@@ -450,8 +461,8 @@ class DungeonScene {
 
     initializeShader(cb) {
 	
-            var alpha= this.Lights.directionalLightDir[0]*Math.PI/180;
-            var beta= this.Lights.directionalLightDir[1]*Math.PI/180;
+        var alpha= this.Lights.directionalLightDir[0]*Math.PI/180;
+        var beta= this.Lights.directionalLightDir[1]*Math.PI/180;
         var gl= this.gl;
         gl.useProgram(this.Program);
 
@@ -463,9 +474,7 @@ class DungeonScene {
         gl.uniform4fv(this.Program.uniforms.directionalLightColor, this.Lights.directionalLightColor);
         gl.uniform3fv(this.Program.uniforms.directionalLightDir,[Math.sin(alpha)*Math.sin(beta), Math.cos(alpha), Math.sin(alpha)*Math.cos(beta)]);
 
-
-        gl.uniform1f(this.Program.uniforms.SpecShine, this.Lights.SpecShine);
-    
+        gl.uniform1f(this.Program.uniforms.SpecShine, this.Lights.SpecShine);    
 
         gl.uniform4fv(this.Program.uniforms.ambientLightColor, this.Lights.ambientLightColor);
         gl.uniform4fv(this.Program.uniforms.ambientLightLowColor, this.Lights.ambientLightLowColor);
@@ -474,7 +483,6 @@ class DungeonScene {
         gl.uniform4fv(this.Program.uniforms.emitColor, this.Lights.emitColor);
         gl.uniform4fv(this.Program.uniforms.diffuseColor, this.Lights.diffuseColor);
         gl.uniform4fv(this.Program.uniforms.emitColor, this.Lights.emitColor);
-    
 
         gl.uniform2fv(this.Program.uniforms.lightType, this.Lights.lightType);
         gl.uniform2fv(this.Program.uniforms.ambientType, this.Lights.ambientType);
@@ -483,7 +491,7 @@ class DungeonScene {
         gl.uniform2fv(this.Program.uniforms.emissionType, this.Lights.emissionType);
     }
 
-    getParameters(cb) {
+    getParameters(mesh) {
 	
         // Prendo i valori direttamente dagli slider
         this.Lights.PLightDecay = document.getElementById('PLightDecay').value;
@@ -494,75 +502,76 @@ class DungeonScene {
         this.Lights.directionalLightDir[0] = document.getElementById('directionalLightDirAlpha').value;
         this.Lights.directionalLightDir[1] = document.getElementById('directionalLightDirBeta').value;
 
-        this.Lights.ambientMatColor = colorToRGB(document.getElementById('ambientMatColor').value);
-        this.Lights.ambientLightLowColor = colorToRGB(document.getElementById('ambientLightLowColor').value);
-        this.Lights.diffuseColor = colorToRGB(document.getElementById('diffuseLightColor').value);
+        // Se usiamo i materiali specifici della mesh
+        if (document.getElementById('useMaterials').checked) {
+            var m = mesh.material;
+            this.Lights.ambientMatColor = [m.Ambient[0] * 255, m.Ambient[1] * 255, m.Ambient[2] * 255, 1.0];
+            this.Lights.diffuseColor = [m.Diffuse[0] * 255, m.Diffuse[1] * 255, m.Diffuse[2] * 255, 1.0];
+            this.Lights.specularColor = [m.Specular[0] * 255, m.Specular[1] * 255, m.Specular[2] * 255, 1.0];
+            this.Lights.emitLightColor = [m.Emissive[0] * 255, m.Emissive[1] * 255, m.Emissive[2] * 255, 1.0];
+        }
+        // Altrimenti settiamo quelli dati dall'utente
+        else {
+            this.Lights.ambientMatColor = colorToRGB(document.getElementById('ambientMatColor').value);
+            this.Lights.diffuseColor = colorToRGB(document.getElementById('diffuseLightColor').value);
+            this.Lights.emitLightColor = colorToRGB(document.getElementById('emitLightColor').value);
+            this.Lights.specularColor = colorToRGB(document.getElementById('specularLightColor').value);
+        }
+        
         this.Lights.ambientLightColor = colorToRGB(document.getElementById('ambientLightColor').value);
-        this.Lights.emitLightColor = colorToRGB(document.getElementById('emitLightColor').value);
-        this.Lights.specularColor = colorToRGB(document.getElementById('specularLightColor').value);
+        this.Lights.ambientLightLowColor = colorToRGB(document.getElementById('ambientLightLowColor').value);
 
         // Tipo di diffusione
-        if (document.getElementById('DiffuseType').value == 'Lambert'){
+        if (document.getElementById('DiffuseType').value == 'Lambert') {
             this.Lights.diffuseType= [1,0]; // Lambert
         }
-        else{if(document.getElementById('DiffuseType').value == 'Toon'){
+        else if(document.getElementById('DiffuseType').value == 'Toon') {
             this.Lights.diffuseType= [0,1]; // Toon
-        }else{
-            this.Lights.diffuseType=[0,0];
         }
+        else {
+            this.Lights.diffuseType=[0,0];
         }
 
         // Tipo di luce speculare
-        if (document.getElementById('SpecularType').value == 'Phong'){
+        if (document.getElementById('SpecularType').value == 'Phong') {
             this.Lights.specularType= [1,0]; // Phong
         }
-        else{if(document.getElementById('SpecularType').value == 'Blinn'){
-
+        else if(document.getElementById('SpecularType').value == 'Blinn') {
             this.Lights.specularType= [0,1]; // Blinn
         }
-        else{
-                        this.Lights.specularType= [0,0]; // none
-
+        else {
+            this.Lights.specularType= [0,0]; // none
         }
-        }
-
+        
         // Tipo di ambient light
-        if(document.getElementById('AmbientType').value == 'Ambient'){
+        if (document.getElementById('AmbientType').value == 'Ambient') {
             this.Lights.ambientType= [1,0];
         }
-        else{if(document.getElementById('AmbientType').value == 'Hemispheric'){
-
+        else if(document.getElementById('AmbientType').value == 'Hemispheric') {
             this.Lights.ambientType= [0,1];
         }
-        else{
-                        this.Lights.ambientType= [0,0];
-
-        }
+        else {
+            this.Lights.ambientType= [0,0];
         }
 
-
-        // Tipo di  light
-
+        // Tipo di light
         if(document.getElementById('LightType').value == 'OnlyPoint'){
             this.Lights.lightType= [1,0];
         }
-        else{if(document.getElementById('LightType').value == 'PointPlusDir'){
-
+        else if(document.getElementById('LightType').value == 'PointPlusDir') {
             this.Lights.lightType= [1,1];
         }
-        else{if(document.getElementById('LightType').value == 'OnlyDirectional'){
-                                        this.Lights.lightType= [0,1];
-
-        }else{
-                        this.Lights.lightType= [0,0];
+        else if (document.getElementById('LightType').value == 'OnlyDirectional') {
+            this.Lights.lightType= [0,1];
         }
-        }
+        else {
+            this.Lights.lightType= [0,0];
         }
     }
 
-    setShader(cb) {
+    setShader(mesh) {
         
-        this.getParameters(cb);
+        this.getParameters(mesh);
         this.initializeShader();
 
     };
@@ -1006,14 +1015,16 @@ class DungeonScene {
         gl.uniformMatrix4fv(this.Program.uniforms.mProj, gl.FALSE, this.projMatrix);
         gl.uniformMatrix4fv(this.Program.uniforms.mView, gl.FALSE, this.viewMatrix);
         //gl.uniform1f(this.Program.uniforms.PLightDecay,Decay );
-        this.setShader();
-        //ogni ciclo di render passo allo shader i nuovi valori di posizione decay e target
+
         //gl.uniform1f(this.Program.uniforms.PLightTarget,Target );
 
         // Disegna i modelli
         for (var i = 0; i < this.Meshes.length; i++) {
         
             var mesh = this.Meshes[i];
+
+            // Fai l'update dello shader in base ai valori settati dall'utente e ai valori specifici del materiale della mesh
+            this.setShader(mesh);
 
             // Se la mesh è una porta ed esistono porte
             if (mesh.name.includes('Door') && this.Doors){

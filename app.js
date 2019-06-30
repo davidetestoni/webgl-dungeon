@@ -53,7 +53,7 @@ function Init(difficulty, debugMode) {
 		}, difficulty);
 	}
 	else{
-		switch (parseInt(difficulty)){
+		switch (Difficulty){
 			case 1:
 				Dungeon = new Dungeon1Scene(gl);
 				break;

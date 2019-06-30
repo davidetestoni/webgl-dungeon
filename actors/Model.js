@@ -3,7 +3,7 @@
 // Costruttore
 class Model {
 
-	constructor(gl, name, vertices, indices, normals, uvs, color) {
+	constructor(gl, name, vertices, indices, normals, uvs, color, material) {
 
 		// Crea una world matrix identità, che andrà riempita dallo script di scena
 		this.world = mat4.create();
@@ -15,6 +15,7 @@ class Model {
 		this.uvbo = gl.createBuffer(); // UV Buffer Object (per textures)
 		this.nPoints = indices.length;
 		this.color = color;
+		this.material = material;
 		this.name = name;
 
 		// Se non sono state specificate UV, fai un array di zeri
