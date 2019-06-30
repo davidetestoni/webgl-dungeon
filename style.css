@@ -2,57 +2,55 @@ canvas {
     margin: 0;
     padding: 0;
     width: 90%;
-    height:100%;
+    height: 100%;
     position: absolute;
     z-index: 1;
 }
 
 button {
-    background:    #3d85c6;
-    background:    linear-gradient(#3d85c6, #073763);
+    background: #3d85c6;
+    background: linear-gradient(#3d85c6, #073763);
     border-radius: 5px;
-    padding:       8px 20px;
-    color:         #ffffff;
-    display:       inline-block;
-    font:          normal bold 24px/1 "Open Sans", sans-serif;
-    text-align:    center;
-    text-shadow:   1px 1px #000000;
+    padding: 8px 20px;
+    color: #ffffff;
+    display: inline-block;
+    font: normal bold 24px/1 "Open Sans", sans-serif;
+    text-align: center;
+    text-shadow: 1px 1px #000000;
 }
 
 .hidden {
     display: none;
 }
 
-#allMenus{
-
-position: relative;
-width: 100%;
-
+#allMenus {
+    position: relative;
+    width: 100%;
 }
 
-
-#showMenu{
-width:auto;
-position: relative;
-background-color: white;
-color: black;
-text-align: center;
-font-weight: bold;
-border: 2px solid black;
+#showMenu {
+    width: auto;
+    position: relative;
+    background-color: white;
+    color: black;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid black;
 }
-#showMenu:hover{
-border: 2px solid red;
-cursor: pointer; 
 
-} 
-#contenitore{
+#showMenu:hover {
+    border: 2px solid red;
+    cursor: pointer; 
+}
+
+#contenitore {
     border: 2px solid black;
     position: absolute;
     left: 0%;
     bottom: 0%;
-    width:99.5%;
+    width: 99.5%;
     color: white;
-  background-color: red;
+    background-color: red;
     opacity: 0.5;
     padding: 0px;
     font-family: 'Courier New', Courier, monospace;
@@ -60,19 +58,18 @@ cursor: pointer;
 }
 
 .slider{
-position:relative;
-width:30%;
-height: 10%;
-
-}
-.Comp{
- padding : 2px;
-    float: left;
-   height: 20%;
-    border: 2px solid black;
-   // width: 48%;
     position: relative;
+    width: 30%;
+    height: 10%;
+}
 
+.Comp {
+    padding : 2px;
+    float: left;
+    height: 20%;
+    border: 2px solid black;
+    width: 48%;
+    position: relative;
 }
 
 
@@ -126,10 +123,10 @@ height: 10%;
 }
 
 #menu {
-    position:fixed;
-    top:40%;
-    left:46%;
-    display:block;
+    position: fixed;
+    top: 40%;
+    left: 46%;
+    display: block;
     text-align: center;
 }
 

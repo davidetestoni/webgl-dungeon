@@ -114,9 +114,15 @@ class DungeonScene {
         this.Cell = {
             X: 6,
             Y: 9
-        }
+        };
         PlaceMinimapMarker(9, 6);
         ColorMinimapCell(9, 6, 'white');
+
+        // Settiamo la cella in cui si vince
+        this.WinCell = {
+            X: 14,
+            Y: 17
+        };
 
         // Settiamo la direzione iniziale
         this.Direction = "right";
@@ -133,6 +139,7 @@ class DungeonScene {
             start: performance.now(), // Il tempo di inizio dell'animazione
             duration: 500 // La durata
         };
+
         this.RotationAnimation = {
             direction: "right",
             covered: 0,
@@ -730,6 +737,11 @@ class DungeonScene {
                 if (this.isKey(target.Y, target.X)){
                     this.interact(target.Y, target.X);
                 }
+
+                // Se è la cella di fine livello, triggera l'evento
+                if (target.X == this.WinCell.X && target.Y == this.WinCell.Y){
+                    setTimeout(function() { NextLevel(); }, me.MoveDelay + 100); // Sblocca i comandi finito il movimento
+                }
             }
         }
 
@@ -757,6 +769,11 @@ class DungeonScene {
                 // Inoltre se nella cella target c'è una chiave, interagiamo con essa
                 if (this.isKey(target.Y, target.X)){
                     this.interact(target.Y, target.X);
+                }
+
+                // Se è la cella di fine livello, triggera l'evento
+                if (target.X == this.WinCell.X && target.Y == this.WinCell.Y){
+                    setTimeout(function() { NextLevel(); }, me.MoveDelay + 100); // Sblocca i comandi finito il movimento
                 }
             }
         }

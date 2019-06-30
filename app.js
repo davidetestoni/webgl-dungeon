@@ -3,6 +3,7 @@
 
 // Variabili globali
 var Dungeon;
+var Difficulty;
 
 // Initializza webgl e carica la scena
 function Init(difficulty, debugMode) {
@@ -23,6 +24,7 @@ function Init(difficulty, debugMode) {
 		items[i].classList.add('hidden');
 	}
 
+	Difficulty = parseInt(difficulty);
 	ResetMinimap();
 	
 	var gl = canvas.getContext('webgl');
@@ -79,6 +81,24 @@ function Init(difficulty, debugMode) {
 		});
 	}
 }
+
+function NextLevel() {
+
+	// Termina il loop
+	Dungeon.end();
+	Dungeon.unload();
+
+	// Vai al prossimo livello
+	if (Difficulty < 3) {
+		alert('You beat difficulty ' + Difficulty + '! Loading the next level...');
+		Init(Difficulty + 1, false);
+	}
+	// Oppure termina il gioco
+	else {
+		alert('You beat the game!');
+	}
+}
+
 
 // Ridisegna la minimappa con tutte le celle nere
 function ResetMinimap() {
