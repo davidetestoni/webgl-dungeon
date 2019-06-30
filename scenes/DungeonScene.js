@@ -505,10 +505,10 @@ class DungeonScene {
         // Se usiamo i materiali specifici della mesh
         if (document.getElementById('useMaterials').checked) {
             var m = mesh.material;
-            this.Lights.ambientMatColor = [m.Ambient[0] * 255, m.Ambient[1] * 255, m.Ambient[2] * 255, 1.0];
-            this.Lights.diffuseColor = [m.Diffuse[0] * 255, m.Diffuse[1] * 255, m.Diffuse[2] * 255, 1.0];
-            this.Lights.specularColor = [m.Specular[0] * 255, m.Specular[1] * 255, m.Specular[2] * 255, 1.0];
-            this.Lights.emitLightColor = [m.Emissive[0] * 255, m.Emissive[1] * 255, m.Emissive[2] * 255, 1.0];
+            this.Lights.ambientMatColor = m.Ambient.concat(1.0);
+            this.Lights.diffuseColor = m.Diffuse.concat(1.0);
+            this.Lights.specularColor = m.Specular.concat(1.0);
+            this.Lights.emitLightColor = m.Emissive.concat(1.0);
         }
         // Altrimenti settiamo quelli dati dall'utente
         else {
@@ -517,7 +517,7 @@ class DungeonScene {
             this.Lights.emitLightColor = colorToRGB(document.getElementById('emitLightColor').value);
             this.Lights.specularColor = colorToRGB(document.getElementById('specularLightColor').value);
         }
-        
+
         this.Lights.ambientLightColor = colorToRGB(document.getElementById('ambientLightColor').value);
         this.Lights.ambientLightLowColor = colorToRGB(document.getElementById('ambientLightLowColor').value);
 
