@@ -395,7 +395,10 @@ class DungeonScene {
                 mProj: me.gl.getUniformLocation(me.Program, 'mProj'),
                 mView: me.gl.getUniformLocation(me.Program, 'mView'),
                 mWorld: me.gl.getUniformLocation(me.Program, 'mWorld'),
-                
+                mNorm: me.gl.getUniformLocation(me.Program, 'mNorm'),
+                lightDirMatrix: me.gl.getUniformLocation(me.Program, 'lightDirMatrix'),
+                lightPosMatrix: me.gl.getUniformLocation(me.Program, 'lightPosMatrix'),
+
                 // Point Light
                 PLightDecay: me.gl.getUniformLocation(me.Program, 'PLightDecay'),
                 PLightTarget: me.gl.getUniformLocation(me.Program, 'PLightTarget'),
@@ -1073,7 +1076,32 @@ class DungeonScene {
                 this.Program.uniforms.meshColor,
                 mesh.color
             );
+  //creo la model view matrix  ---> view * world
+            var ModelView = mat4.create();
+            mat4.multiply(ModelView, this.viewMatrix, mesh.world);
 
+            //la passo allo shader
+            gl.uniformMatrix4fv(
+                this.Program.uniforms.mNorm,
+                gl.FALSE,
+                ModelView);
+
+
+//poi passo la view matrix
+      
+            gl.uniformMatrix4fv(
+                this.Program.uniforms.lightDirMatrix,
+                gl.FALSE,
+                this.viewMatrix
+            );
+      
+      var inverseView = mat4.create();
+            mat4.invert(inverseView, this.viewMatrix);
+            gl.uniformMatrix4fv(
+                this.Program.uniforms.lightPosMatrix,
+                gl.FALSE,
+                inverseView
+            );
             // Riempi il buffer dei vertici
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vbo);
             gl.vertexAttribPointer(

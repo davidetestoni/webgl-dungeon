@@ -32,7 +32,8 @@ uniform float SpecShine;
 uniform float DToonTh;
 uniform float SToonTh;
 
-
+uniform mat4 lightPosMatrix;
+uniform mat4 lightDirMatrix;
 uniform sampler2D sampler;
 
 // VARYING
@@ -42,19 +43,36 @@ varying vec2 fTexCoord;
 
 void main()
 {
+
+
+//normalizzo le normali
+
+    vec3 nNormals=normalize(fNorm); 
+
+//aggiusto le direzioni della directional light, essendo in camera space 
+//applico la view matrix(che non è altro che l'inverso della camera matrix)
+    vec3 directionalDir= mat3(lightDirMatrix)*directionalLightDir;
+
+//aggiusto la posizione della point light.La posizione viene passata al 
+//fragment gia moltiplicata per la view. siccome camera e luce sono sovrapposti basta moltiplicare per l'inverso della view
+vec3 pointLightPositionTransform= mat3(lightPosMatrix)*pointLightPosition;
+
+
     // Calcolo la direzione e il colore della luce (point light) --> passaggio base
-    vec4 PointlightColor = PLColor * pow(PLightTarget / length(pointLightPosition - fPos), PLightDecay);
-    vec3 PointlightDir = normalize(pointLightPosition - fPos);
+    vec4 PointlightColor = PLColor * pow(PLightTarget / length(pointLightPositionTransform - fPos), PLightDecay);
+    vec3 PointlightDir = normalize(pointLightPositionTransform - fPos);
+
+
 
     // Calcolo direzione in cui viene guardato il pixel e l'halfvector
     // Eye position è la posizione della camera
-    vec3 eyePos = pointLightPosition;
+    vec3 eyePos = pointLightPositionTransform;
     vec3 eyedirVec = normalize(eyePos - fPos);
     vec3 halfVecPoint = normalize(PointlightDir + eyePos);
-    vec3 reflectionPoint = -reflect(PointlightDir, fNorm);
-    vec3 halfVecDirectional = normalize(directionalLightDir + eyePos);
-    vec3 reflectionDirectional = -reflect(directionalLightDir, fNorm);
-    float amBlend = (dot(fNorm, vec3(0.0, 1.0, 0.0)) + 1.0) / 2.0;
+    vec3 reflectionPoint = -reflect(PointlightDir, nNormals);
+    vec3 halfVecDirectional = normalize(directionalDir + eyePos);
+    vec3 reflectionDirectional = -reflect(directionalDir, nNormals);
+    float amBlend = (dot(nNormals, vec3(0.0, 1.0, 0.0)) + 1.0) / 2.0;
 
     // Calcolo i vari tipi di effetti partendo dalla direzione e dal colore della luce
 
@@ -70,21 +88,21 @@ void main()
 
     //calcolo phong per la point light
     vec4 specularPhongPoint = PointlightColor * pow(max(dot(reflectionPoint, eyedirVec), 0.0), SpecShine) * specularColor;
-    vec4 specularBlinnPoint = PointlightColor * pow(max(dot(fNorm, halfVecPoint), 0.0), SpecShine) * specularColor;
+    vec4 specularBlinnPoint = PointlightColor * pow(max(dot(nNormals, halfVecPoint), 0.0), SpecShine) * specularColor;
     vec4 specularPoint = (specularPhongPoint * specularType.x) + (specularBlinnPoint * specularType.y);
 
         //calcolo blinn per la point light
     vec4 specularPhongDirectional = directionalLightColor * pow(max(dot(reflectionDirectional, eyedirVec), 0.0), SpecShine) * specularColor;
-    vec4 specularBlinnDirectional = directionalLightColor * pow(max(dot(fNorm, halfVecDirectional), 0.0), SpecShine) * specularColor;
+    vec4 specularBlinnDirectional = directionalLightColor * pow(max(dot(nNormals, halfVecDirectional), 0.0), SpecShine) * specularColor;
        vec4 specularDirectional = (specularPhongDirectional * specularType.x) + (specularBlinnDirectional * specularType.y);
 
     
 
 
 //calcolo lamber per il point
-    vec4 lambertPoint = PointlightColor * clamp(dot(fNorm, PointlightDir),0.0,1.0) * diffuseColor;
+    vec4 lambertPoint = PointlightColor * clamp(dot(nNormals, PointlightDir),0.0,1.0) * diffuseColor;
     vec4 ToonColPoint;
-    if(dot(fNorm, PointlightDir) > DToonTh) {
+    if(dot(nNormals, PointlightDir) > DToonTh) {
         ToonColPoint = diffuseColor;
     } else {
         ToonColPoint = vec4(0.0, 0.0, 0.0, 1.0);
@@ -93,10 +111,10 @@ void main()
     vec4 diffusePoint= (lambertPoint*diffuseType.x) + (toonPoint*diffuseType.y);
 
 //calcolo lamber per la direzionale
-    vec4 lambertDirectional = directionalLightColor * clamp(dot(fNorm, directionalLightDir),0.0,1.0) * diffuseColor;
+    vec4 lambertDirectional = directionalLightColor * clamp(dot(nNormals, directionalDir),0.0,1.0) * diffuseColor;
 
 vec4 ToonColDirectional;
-    if(dot(fNorm, directionalLightDir) > DToonTh) {
+    if(dot(nNormals, directionalDir) > DToonTh) {
         ToonColDirectional = diffuseColor;
     } else {
         ToonColDirectional = vec4(0.0, 0.0, 0.0, 1.0);
