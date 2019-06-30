@@ -50,15 +50,15 @@ class DungeonScene {
             pointLightPosition: [0,0,0],
             PLightDecay: 2,
             PLightTarget: 3,
-            PLColor: [1.0,0.0,0.0,1.0],
+            PLColor: [0.764, 0.035, 0.086,1.0],
 
             //directional parameters
-            directionalLightColor: [1.0,0.0,1.0,1.0],
+            directionalLightColor: [1.0,1.0,1.0,1.0],
             directionalLightDir: [45,45],
 
 
             // effect colors
-            ambientLightColor: [1.0,0.0,1.0,1.0],
+            ambientLightColor: [0,0,0,1.0],
             ambientLightLowColor: [1.0,1.0,0.0,1.0],
             ambientMatColor: [0.0,0.1,0.0,1.0],
             diffuseColor: [0.8,1.0,1.0,0.0],
@@ -505,10 +505,16 @@ class DungeonScene {
         // Se usiamo i materiali specifici della mesh
         if (document.getElementById('useMaterials').checked) {
             var m = mesh.material;
-            this.Lights.ambientMatColor = m.Ambient.concat(1.0);
-            this.Lights.diffuseColor = m.Diffuse.concat(1.0);
-            this.Lights.specularColor = m.Specular.concat(1.0);
-            this.Lights.emitLightColor = m.Emissive.concat(1.0);
+            this.Lights.ambientMatColor = m.Ambient.concat(0.0);
+            this.Lights.diffuseColor = m.Diffuse.concat(0.0);
+            this.Lights.specularColor = m.Specular.concat(0.0);
+            this.Lights.emitLightColor = m.Emissive.concat(0.0);
+
+
+               // document.getElementById('diffuseLightColor').value = colorToHex(this.Lights.diffuseColor);
+        //document.getElementById('emitLightColor').value = colorToHex(this.Lights.emitColor);
+        //document.getElementById('ambientMatColor').value = colorToHex(this.Lights.ambientMatColor);
+        //document.getElementById('specularLightColor').value = colorToHex(this.Lights.specularColor);
         }
         // Altrimenti settiamo quelli dati dall'utente
         else {
