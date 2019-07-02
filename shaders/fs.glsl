@@ -59,8 +59,8 @@ vec3 pointLightPositionTransform= mat3(lightPosMatrix)*pointLightPosition;
 
 
     // Calcolo la direzione e il colore della luce (point light) --> passaggio base
-    vec4 PointlightColor = PLColor * pow(PLightTarget / length(pointLightPositionTransform - fPos), PLightDecay);
-    vec3 PointlightDir = normalize(pointLightPositionTransform - fPos);
+    vec4 PointlightColor = PLColor * pow(PLightTarget / length(fPos), PLightDecay);
+    vec3 PointlightDir = normalize(-fPos);
 
 
 
