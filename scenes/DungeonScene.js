@@ -469,7 +469,7 @@ class DungeonScene {
         var gl= this.gl;
         gl.useProgram(this.Program);
 
-        gl.uniform3fv(this.Program.uniforms.pointLightPosition, this.Camera.position);
+        gl.uniform3fv(this.Program.uniforms.pointLightPosition, [0,0,0]);
         gl.uniform1f(this.Program.uniforms.PLightDecay, this.Lights.PLightDecay);
         gl.uniform1f(this.Program.uniforms.PLightTarget, this.Lights.PLightTarget);
         gl.uniform4fv(this.Program.uniforms.PLColor, this.Lights.PLColor);
