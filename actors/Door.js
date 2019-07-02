@@ -12,6 +12,7 @@ class Door {
         this.animDuration = animDuration;
     }
     
+    // Apri la porta
     open() {
         if (this.status === 'closed'){
             this.status = 'opening';

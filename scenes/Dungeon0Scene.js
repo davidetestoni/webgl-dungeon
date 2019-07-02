@@ -1,4 +1,5 @@
 // Scena di test per esperimenti con la camera e il movimento
+// In questa scena non tracciamo le celle e dunque non si triggerano gli eventi
 
 'use strict';
 

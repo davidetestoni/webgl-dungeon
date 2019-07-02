@@ -30,8 +30,6 @@ class Dungeon2Scene extends DungeonScene {
 			new DoorLever('Door3', 12, 15, 12, 14),
 			new DoorLever('Door5', 7, 10, 7, 9)
 		];
-
-
 	}
 
 	// Override del metodo load della classe parent

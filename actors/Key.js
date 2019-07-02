@@ -1,3 +1,4 @@
+// Chiave generica
 class Key {
 
     constructor(y, x, type) {

@@ -15,6 +15,7 @@ class DungeonScene {
 
         this.gl = gl;
 
+        // La matrice di occupazione delle celle per il movimento
         this.occupation = [
             ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"],
             ["*","*","*","*","*","*","*","*","*","*","*","*","*","*","*","*"," "," ","*","*","*","*","*","*"],
@@ -93,7 +94,7 @@ class DungeonScene {
         document.getElementById('directionalLightDirAlpha').value = this.Lights.directionalLightDir[0];
         document.getElementById('directionalLightDirBeta').value = this.Lights.directionalLightDir[1];
 
-        //questi li setto a mano per comodità
+        //questi vengono settati manualmente per comodità
         document.getElementById('AmbientType').value = "Ambient";
         document.getElementById('DiffuseType').value = "Lambert";
         document.getElementById('SpecularType').value = "Phong";
@@ -146,7 +147,7 @@ class DungeonScene {
         };
 
         /*
-        Listener degli eventi
+        Listeners degli eventi
         */
 
         // Ridimensiona il canvas quando la finestra viene ridimensionata
@@ -296,12 +297,14 @@ class DungeonScene {
                 var mesh = loadResults.Models.DungeonModel.meshes[i];
 
                 var texCoords = null;
+                // Le texturecoords potrebbero non essere state specificate
                 if (mesh.texturecoords){
                     texCoords = mesh.texturecoords[0];
                 }
 
                 var mat = loadResults.Models.DungeonModel.materials[mesh.materialindex];
 
+                // Crea il materiale
                 var material = {
                     Name: mat.properties[0].value,
                     ShadingMode: mat.properties[1].value,
@@ -340,6 +343,7 @@ class DungeonScene {
             };
 
             // Funzione che binda una texture
+            // La definiamo qui per comodità visto che siamo dentro async
             var bindTexture = function(texture, image, flipY = false, flipX = false){
                 
                 me.gl.bindTexture(me.gl.TEXTURE_2D, texture);
@@ -405,10 +409,9 @@ class DungeonScene {
                 pointLightPosition: me.gl.getUniformLocation(me.Program, 'pointLightPosition'),
                 PLColor: me.gl.getUniformLocation(me.Program, 'PLColor'),
 
-                    //dir light
+                // Directional light
                 directionalLightColor: me.gl.getUniformLocation(me.Program, 'directionalLightColor'),
                 directionalLightDir: me.gl.getUniformLocation(me.Program, 'directionalLightDir'),
-
 
                 ambientLightColor: me.gl.getUniformLocation(me.Program, 'ambientLightColor'),
                 ambientLightLowColor: me.gl.getUniformLocation(me.Program, 'ambientLightLowColor'),
@@ -416,7 +419,6 @@ class DungeonScene {
                 ambientMatColor: me.gl.getUniformLocation(me.Program, 'ambientMatColor'),
                 emitColor: me.gl.getUniformLocation(me.Program, 'emitColor'),
                 diffuseColor: me.gl.getUniformLocation(me.Program, 'diffuseColor'),
-
 
                 SpecShine: me.gl.getUniformLocation(me.Program, 'SpecShine'),
                 DToonTH: me.gl.getUniformLocation(me.Program, 'DToonTH'),
@@ -427,7 +429,7 @@ class DungeonScene {
                 diffuseType: me.gl.getUniformLocation(me.Program, 'diffuseType'),
                 specularType: me.gl.getUniformLocation(me.Program, 'specularType'),
                 emissionType: me.gl.getUniformLocation(me.Program, 'emissionType'),
-                 lightType: me.gl.getUniformLocation(me.Program, 'lightType'),
+                lightType: me.gl.getUniformLocation(me.Program, 'lightType'),
 
                 meshColor: me.gl.getUniformLocation(me.Program, 'meshColor')
             };
@@ -512,12 +514,12 @@ class DungeonScene {
             this.Lights.diffuseColor = m.Diffuse.concat(0.0);
             this.Lights.specularColor = m.Specular.concat(0.0);
             this.Lights.emitLightColor = m.Emissive.concat(0.0);
+            this.Lights.SpecShine = m.Shininess;
 
-
-               // document.getElementById('diffuseLightColor').value = colorToHex(this.Lights.diffuseColor);
-        //document.getElementById('emitLightColor').value = colorToHex(this.Lights.emitColor);
-        //document.getElementById('ambientMatColor').value = colorToHex(this.Lights.ambientMatColor);
-        //document.getElementById('specularLightColor').value = colorToHex(this.Lights.specularColor);
+            // document.getElementById('diffuseLightColor').value = colorToHex(this.Lights.diffuseColor);
+            //document.getElementById('emitLightColor').value = colorToHex(this.Lights.emitColor);
+            //document.getElementById('ambientMatColor').value = colorToHex(this.Lights.ambientMatColor);
+            //document.getElementById('specularLightColor').value = colorToHex(this.Lights.specularColor);
         }
         // Altrimenti settiamo quelli dati dall'utente
         else {
@@ -758,7 +760,7 @@ class DungeonScene {
 
                 // Se è la cella di fine livello, triggera l'evento
                 if (target.X == this.WinCell.X && target.Y == this.WinCell.Y){
-                    setTimeout(function() { NextLevel(); }, me.MoveDelay + 100); // Sblocca i comandi finito il movimento
+                    setTimeout(function() { NextLevel(); }, me.MoveDelay + 100); // Mostra l'alert finito il movimento
                 }
             }
         }
@@ -791,7 +793,7 @@ class DungeonScene {
 
                 // Se è la cella di fine livello, triggera l'evento
                 if (target.X == this.WinCell.X && target.Y == this.WinCell.Y){
-                    setTimeout(function() { NextLevel(); }, me.MoveDelay + 100); // Sblocca i comandi finito il movimento
+                    setTimeout(function() { NextLevel(); }, me.MoveDelay + 100); // Mostra l'alert finito il movimento
                 }
             }
         }
@@ -799,6 +801,7 @@ class DungeonScene {
         this.Camera.getViewMatrix(this.viewMatrix);
     }
 
+    // Interpolazione lineare semplificata: retta da (0,0) a (X,Y), ottiene y dato x
     interpolate(targetPoint, animationTime, currentTime) {
 
         // Calcola il coeff. angolare della retta passante per l'origine
@@ -808,6 +811,7 @@ class DungeonScene {
         return m * currentTime;
     }
 
+    // Attua il movimento finale
     performFinalMovement(forward) {
 
         // Se non facciamo questo, l'animazione potrebbe fermarsi prima di aver raggiunto il punto finale e muoversi ad es. di 0.97 invece che 1
@@ -815,12 +819,14 @@ class DungeonScene {
         this.Camera.getViewMatrix(this.viewMatrix);
     }
 
+    // Attua la rotazione finale
     performFinalRotation(right) {
 
         this.Camera.rotateRight(right * (glMatrix.toRadian(90) - this.RotationAnimation.covered));
         this.Camera.getViewMatrix(this.viewMatrix);
     }
 
+    // Ottiene la prossima cella in cui il player vuole andare
     getTargetCell(behind) {
         
         // Dovremmo verificare anche se siamo fuori dai bordi della matrice ma la matrice è stata fatta in modo che questo non succeda
@@ -871,6 +877,7 @@ class DungeonScene {
         }
     }
 
+    // Interagisce con oggetti presenti nella cella data
     interact(y, x){
 
         if (this.isLever(y, x)){
@@ -917,6 +924,7 @@ class DungeonScene {
         }
     }
 
+    // Ritorna true se nella cella data c'è una chiave
     isKey(y, x){
         if (!this.Keys) return false;
 
@@ -932,6 +940,7 @@ class DungeonScene {
         return false;
     }
 
+    // Ritorna true se nella cella data c'è una porta con serratura
     isDoorKey(y, x){
         if (!this.Doors) return false;
 
@@ -947,6 +956,7 @@ class DungeonScene {
         return false;
     }
 
+    // Ritorna true se nella cella data c'è una porta chiusa
     isClosedDoor(y, x){
         if (!this.Doors) return false;
 
@@ -962,6 +972,7 @@ class DungeonScene {
         return false;
     }
 
+    // Ritorna true se nella cella data c'è una leva
     isLever(y, x){
         if (!this.Doors) return false;
 
@@ -977,6 +988,7 @@ class DungeonScene {
         return false;
     }
 
+    // Ritorna la prossima direzione in cui il player guarderà
     getNextDirection(clockwise) {
 
         var directions = ["up", "right", "down", "left"];
@@ -997,11 +1009,6 @@ class DungeonScene {
         
         // Ottieni una reference comoda per gl
         var gl = this.gl;
-    
-        // prendo i valori dalla pagina HTML e creo il vettore posizione point light
-        // var PLpositions= vec3.fromValues(document.getElementById("PLightX").value/10,document.getElementById("PLightY").value/10,document.getElementById("PLightZ").value/10);
-        // var Decay= document.getElementById("PLightDecay").value/5;
-        // var Target= document.getElementById("PLightTarget").value/20;
 
         // Abilita backface culling e zorder
         gl.enable(gl.CULL_FACE);
@@ -1024,7 +1031,6 @@ class DungeonScene {
         gl.uniformMatrix4fv(this.Program.uniforms.mProj, gl.FALSE, this.projMatrix);
         gl.uniformMatrix4fv(this.Program.uniforms.mView, gl.FALSE, this.viewMatrix);
         //gl.uniform1f(this.Program.uniforms.PLightDecay,Decay );
-
         //gl.uniform1f(this.Program.uniforms.PLightTarget,Target );
 
         // Disegna i modelli
@@ -1071,37 +1077,40 @@ class DungeonScene {
             gl.uniformMatrix4fv(
                 this.Program.uniforms.mWorld,
                 gl.FALSE,
-                mesh.world);
+                mesh.world
+            );
+
             gl.uniform4fv(
                 this.Program.uniforms.meshColor,
                 mesh.color
             );
-  //creo la model view matrix  ---> view * world
+            
+            // Creo la model view matrix  ---> view * world
             var ModelView = mat4.create();
             mat4.multiply(ModelView, this.viewMatrix, mesh.world);
 
-            //la passo allo shader
+            // La passo allo shader
             gl.uniformMatrix4fv(
                 this.Program.uniforms.mNorm,
                 gl.FALSE,
-                ModelView);
+                ModelView
+            );
 
-
-//poi passo la view matrix
-      
+            // Poi passo la view matrix
             gl.uniformMatrix4fv(
                 this.Program.uniforms.lightDirMatrix,
                 gl.FALSE,
                 this.viewMatrix
             );
       
-      var inverseView = mat4.create();
+            var inverseView = mat4.create();
             mat4.invert(inverseView, this.viewMatrix);
             gl.uniformMatrix4fv(
                 this.Program.uniforms.lightPosMatrix,
                 gl.FALSE,
                 inverseView
             );
+
             // Riempi il buffer dei vertici
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vbo);
             gl.vertexAttribPointer(
@@ -1120,7 +1129,7 @@ class DungeonScene {
             );
             gl.enableVertexAttribArray(this.Program.attribs.vNorm);		
 
-            // Riempi il buffer delle texture
+            // Riempi il buffer delle coordinate UV
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvbo);
             gl.vertexAttribPointer(
                 this.Program.attribs.vTexCoord,
@@ -1167,7 +1176,7 @@ class DungeonScene {
                     gl.bindTexture(gl.TEXTURE_2D, this.Textures.copperKeyTexture);
                     break;
 
-                // Qui dovremmo definire dei default per levers e keyholes!!
+                // Quando non è specificata una texture, usa quella del pavimento
                 default:
                     gl.bindTexture(gl.TEXTURE_2D, this.Textures.floorTexture);
                     break;
@@ -1205,9 +1214,6 @@ class DungeonScene {
         this.Camera = null;
         this.Lights = null;
         this.Meshes = null;
-
-        //this.lightPosition = null; tolto momentaneamente
-
         this.PressedKeys = null;
         this.RotateDelay = null;
         this.MoveDelay = null;

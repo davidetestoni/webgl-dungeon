@@ -7,16 +7,17 @@ uniform vec2 specularType;
 uniform vec2 emissionType;
 uniform vec2 lightType;
 
-//point light param
+// Point light params
 uniform vec4 PLColor;
-uniform vec3 pointLightPosition; // Per ora qui dentro c'è un vettore con tre elementi che indicano la posizione della point light
+uniform vec3 pointLightPosition; // Posizione della point light
 uniform float PLightDecay; // Il decay della point light
 uniform float PLightTarget; // Il target della point light
 
-//directional light
+// Directional light params
 uniform vec4 directionalLightColor;
 uniform vec3 directionalLightDir;
 
+// Colori
 uniform vec4 specularColor;
 uniform vec4 ambientLightColor;
 uniform vec4 ambientMatColor;
@@ -45,24 +46,20 @@ void main()
 {
 
 
-//normalizzo le normali
+    // Normalizzo le normali
+    vec3 nNormals = normalize(fNorm); 
 
-    vec3 nNormals=normalize(fNorm); 
+    // Aggiusto le direzioni della directional light, essendo in camera space.
+    // Applico la view matrix (che non è altro che l'inverso della camera matrix)
+    vec3 directionalDir = mat3(lightDirMatrix) * directionalLightDir;
 
-//aggiusto le direzioni della directional light, essendo in camera space 
-//applico la view matrix(che non è altro che l'inverso della camera matrix)
-    vec3 directionalDir= mat3(lightDirMatrix)*directionalLightDir;
-
-//aggiusto la posizione della point light.La posizione viene passata al 
-//fragment gia moltiplicata per la view. siccome camera e luce sono sovrapposti basta moltiplicare per l'inverso della view
-vec3 pointLightPositionTransform= mat3(lightPosMatrix)*pointLightPosition;
-
+    // Aggiusto la posizione della point light. La posizione viene passata al 
+    // fragment già moltiplicata per la view. Siccome camera e luce sono sovrapposti basta moltiplicare per l'inverso della view
+    vec3 pointLightPositionTransform= mat3(lightPosMatrix) * pointLightPosition;
 
     // Calcolo la direzione e il colore della luce (point light) --> passaggio base
     vec4 PointlightColor = PLColor * pow(PLightTarget / length(fPos), PLightDecay);
     vec3 PointlightDir = normalize(-fPos);
-
-
 
     // Calcolo direzione in cui viene guardato il pixel e l'halfvector
     // Eye position è la posizione della camera
@@ -76,31 +73,23 @@ vec3 pointLightPositionTransform= mat3(lightPosMatrix)*pointLightPosition;
 
     // Calcolo i vari tipi di effetti partendo dalla direzione e dal colore della luce
 
-
-
     // AmbientType è un vettore di zeri ed uni che indica quale tipo è stato scelto dalla GUI
     vec4 ambientAmbient = ambientLightColor * ambientMatColor;
     vec4 ambientHemi = (ambientLightColor * amBlend + ambientLightLowColor * (1.0 - amBlend)) * ambientMatColor;
     vec4 ambient = (ambientAmbient * ambientType.x) + (ambientHemi * ambientType.y);
 
-
-
-
-    //calcolo phong per la point light
+    // Calcolo Phong e Blinn per la point light
     vec4 specularPhongPoint = PointlightColor * pow(max(dot(reflectionPoint, eyedirVec), 0.0), SpecShine) * specularColor;
     vec4 specularBlinnPoint = PointlightColor * pow(max(dot(nNormals, halfVecPoint), 0.0), SpecShine) * specularColor;
     vec4 specularPoint = (specularPhongPoint * specularType.x) + (specularBlinnPoint * specularType.y);
 
-        //calcolo blinn per la point light
+    // Calcolo Phong e Blinn per la directional light
     vec4 specularPhongDirectional = directionalLightColor * pow(max(dot(reflectionDirectional, eyedirVec), 0.0), SpecShine) * specularColor;
     vec4 specularBlinnDirectional = directionalLightColor * pow(max(dot(nNormals, halfVecDirectional), 0.0), SpecShine) * specularColor;
-       vec4 specularDirectional = (specularPhongDirectional * specularType.x) + (specularBlinnDirectional * specularType.y);
+    vec4 specularDirectional = (specularPhongDirectional * specularType.x) + (specularBlinnDirectional * specularType.y);
 
-    
-
-
-//calcolo lamber per il point
-    vec4 lambertPoint = PointlightColor * clamp(dot(nNormals, PointlightDir),0.0,1.0) * diffuseColor;
+    // Calcolo Lambert per la point light
+    vec4 lambertPoint = PointlightColor * clamp(dot(nNormals, PointlightDir), 0.0, 1.0) * diffuseColor;
     vec4 ToonColPoint;
     if(dot(nNormals, PointlightDir) > DToonTh) {
         ToonColPoint = diffuseColor;
@@ -108,28 +97,25 @@ vec3 pointLightPositionTransform= mat3(lightPosMatrix)*pointLightPosition;
         ToonColPoint = vec4(0.0, 0.0, 0.0, 1.0);
     }
     vec4 toonPoint = PointlightColor * ToonColPoint;
-    vec4 diffusePoint= (lambertPoint*diffuseType.x) + (toonPoint*diffuseType.y);
+    vec4 diffusePoint= (lambertPoint * diffuseType.x) + (toonPoint * diffuseType.y);
 
-//calcolo lamber per la direzionale
-    vec4 lambertDirectional = directionalLightColor * clamp(dot(nNormals, directionalDir),0.0,1.0) * diffuseColor;
+    // Calcolo Lambert per la direzionale
+    vec4 lambertDirectional = directionalLightColor * clamp(dot(nNormals, directionalDir), 0.0, 1.0) * diffuseColor;
 
-vec4 ToonColDirectional;
+    vec4 ToonColDirectional;
     if(dot(nNormals, directionalDir) > DToonTh) {
         ToonColDirectional = diffuseColor;
     } else {
         ToonColDirectional = vec4(0.0, 0.0, 0.0, 1.0);
     }
     vec4 toonDirectional = directionalLightColor * ToonColDirectional;
-    vec4 diffuseDirectional= (lambertDirectional*diffuseType.x) + (toonDirectional*diffuseType.y);
+    vec4 diffuseDirectional= (lambertDirectional * diffuseType.x) + (toonDirectional * diffuseType.y);
+
+    // Calcolo il diffuse finale
+    vec4 diffuse = (diffuseDirectional * lightType.y) + (diffusePoint * lightType.x);
     
-
-
-
-
-//calcolo il diffuse finale
-    vec4  diffuse= (diffuseDirectional*lightType.y)+(diffusePoint*lightType.x);
-//calcolo lo specular finale
-    vec4 specular= (specularPoint*lightType.x) + (specularDirectional*lightType.y);
+    // Calcolo lo specular finale
+    vec4 specular = (specularPoint * lightType.x) + (specularDirectional * lightType.y);
 
     // Sommo e clampo tutto
     vec4 outColor = clamp (diffuse + specular + ambient + emitColor, 0.0, 1.0);

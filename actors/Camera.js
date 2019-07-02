@@ -10,17 +10,6 @@ class Camera {
 
     // Ottiene la view matrix
     getViewMatrix(out) {
-
-        /*
-        
-        Per creare una View matrix si procede così:
-        data una posizione T, una direzione nello spazio rx, ry, rz e un fattore S
-        T x Ry x Rx x Rz x S e poi facciamo l'inversa 
-
-        più velocemente :
-        S * Rz(inversa) * Rx(inversa) * Ry(inversa) * T
-
-        */
         
         // Crea matrici e vettori
         var RotationAlpha = mat4.create();

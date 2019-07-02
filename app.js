@@ -39,7 +39,7 @@ function Init(difficulty, debugMode) {
 		return;
 	}
 
-	// In base alla difficoltà selezionata
+	// Se siamo in debug, carica la scena 0
 	if (debugMode){
 		Dungeon = new Dungeon0Scene(gl);
 
@@ -52,7 +52,8 @@ function Init(difficulty, debugMode) {
 			}
 		}, difficulty);
 	}
-	else{
+	else {
+		// In base alla difficoltà selezionata
 		switch (Difficulty){
 			case 1:
 				Dungeon = new Dungeon1Scene(gl);
@@ -71,6 +72,7 @@ function Init(difficulty, debugMode) {
 				return;
 		}
 
+		// Carica il dungeon
 		Dungeon.load(function (error) {
 			if (error) {
 				alert('Could not load the scene - see console for more details');
@@ -82,6 +84,7 @@ function Init(difficulty, debugMode) {
 	}
 }
 
+// Vai al prossimo livello
 function NextLevel() {
 
 	// Termina il loop
@@ -98,7 +101,6 @@ function NextLevel() {
 		alert('You beat the game!');
 	}
 }
-
 
 // Ridisegna la minimappa con tutte le celle nere
 function ResetMinimap() {
@@ -120,12 +122,14 @@ function ResetMinimap() {
 	minimap.appendChild(table);
 }
 
+// Colora una cella della minimappa
 function ColorMinimapCell(y, x, color) {
 
 	var cell = document.querySelector(`#minimap table tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`);
 	cell.style.background = color;
 }
 
+// Sposta il marker sulla minimappa
 function PlaceMinimapMarker(y, x) {
 
 	// Rimuovi marker precedenti

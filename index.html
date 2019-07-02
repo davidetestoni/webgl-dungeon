@@ -49,8 +49,6 @@
     <div id="showMenu" onclick='show()'>CLOSE</div>
     <div id="allMenus" style="display:none">
 
-       
-
         <div id="Diffuse" class="Comp"> 
 
             <!-- DIFFUSE TYPE -->
@@ -86,11 +84,11 @@
                 <option value = "PointPlusDir">PointPlusDir</option>
             </select>
         </div>
- <!-- POINT LIGHT -->
+
+        <!-- POINT LIGHT -->
         <div id="PointLight" class="Comp"> 
 
             <!-- DECAY TARGET -->
-            <!-- Qui si puo cambiare il target e il decay... sul target ci siamo, sul decay non capisco perche lui usa dei valori tipo 0,1,2 mentre a me produce un effetto sensato solo con valori tra 0 e 1 circa-->
             <p>Decay point light    Target point light<p>
             <input type="range" min="0" max="2" id="PLightDecay" />
             <input type="range" min="1" max="10" id="PLightTarget" />
@@ -99,6 +97,7 @@
 
 
         </div>
+
         <!-- LIGHT COLORS -->
         <div id="colors" class="Comp">
             Point
@@ -107,7 +106,7 @@
             <input type="color" id="ambientLightColor" value="#222222">
             ambient LOW
             <input type="color" id="ambientLightLowColor" value="#222222">
-             ambient mat color
+            ambient mat color
             <input type="color" id="ambientMatColor" value="#222222">
             
             diffuse
