@@ -112,7 +112,7 @@ class DungeonScene {
         // Settiamo la cella iniziale nella tabella delle occupation
         this.Cell = {
             X: 6,
-            Y: 12
+            Y: 9
         };
         PlaceMinimapMarker(9, 6);
         ColorMinimapCell(9, 6, 'white');
@@ -442,7 +442,7 @@ class DungeonScene {
 
             // Crea la telecamera sull asse positivo delle Z che guarda l'origine
             me.Camera = new Camera(
-                vec3.fromValues(0, 0.5, 3.0), // Posizione iniziale della Camera nell'origine
+                vec3.fromValues(0, 0.5, 0), // Posizione iniziale della Camera nell'origine
                 0, // alpha
                 -Math.PI/2  // beta
             );
